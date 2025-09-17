@@ -1,10 +1,29 @@
-﻿# Aegis â€” Grepolis Remake (0.1b - beta)
+# 🚀 Aegis – Grepolis Remake (0.1b – beta)
 
-Quick start:
-1. Unpack or place the contents of this folder into the root of your GitHub repo (userscripts/, config/, assets/, docs/, tools/).
-2. Install Tampermonkey in your browser.
-3. Install the userscript from userscripts/grepolis-skin-switcher.user.js (raw link from your repo).
-4. Open Grepolis, log in, and you should see the Aegis switcher in the bottom-right corner.
+Dodatek dla Tampermonkey umożliwiający podmianę grafik w Grepolis na nowe style:
+- **Remaster 2025** – odświeżona wersja oryginalnych grafik
+- **Piracko-epicki** – kompletnie nowa szata graficzna
 
-Author: KID6767
-License: MIT
+---
+
+## 📥 Instalacja
+
+1. Zainstaluj rozszerzenie [Tampermonkey](https://www.tampermonkey.net/) w swojej przeglądarce.
+2. Kliknij w poniższy przycisk, aby dodać skrypt:
+
+[![Install Aegis](https://img.shields.io/badge/Install%20Aegis%20%E2%86%92-blue?logo=grepolis)](https://raw.githubusercontent.com/KID6767/Aegis/main/skrypty%20użytkownika/grepolis-skin-switcher.user.js)
+
+3. Po instalacji wejdź do Grepolis — w menu Tampermonkey pojawi się wpis:  
+   **Aegis – Grepolis Skin Switcher** ✅
+4. W prawym dolnym rogu gry pojawi się panel Aegis, gdzie można przełączać style.
+
+---
+
+## 📸 Podgląd
+
+![Tampermonkey active script](docs/screenshots/tampermonkey_aegis.png)
+
+---
+
+## ℹ️ Autor
+**KID6767** – Licencja MIT
