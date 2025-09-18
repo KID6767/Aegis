@@ -1,131 +1,111 @@
 ﻿// ==UserScript==
-// @name         Aegis â€” Grepolis Skin Switcher
-// @namespace    https://github.com/KID6767/Aegis-Grepolis-Remake
-// @version      0.1b
-// @description  Podmiana grafik Grepolis (Remaster 2025 / Pirate-Epic) â€” beta.
+// @name         Aegis â€” Grepolis Remaster (visual)
+// @namespace    https://github.com/KID6767/Aegis
+// $10.6.2-stable
+// @description  Full visual remaster 2025: 3 themes, Dark, @2x, animations (waves, fire, aura, flags), sprite overlays.
 // @author       KID6767
-// @match        https://*.grepolis.com/*
-// @match        http://*.grepolis.com/*
+// @match        *://*.grepolis.com/*
 // @run-at       document-end
 // @grant        GM_getValue
 // @grant        GM_setValue
-// @grant        GM_addStyle
 // @grant        GM_xmlhttpRequest
-// @connect      raw.githubusercontent.com
-// @updateURL    https://raw.githubusercontent.com/KID6767/Aegis-Grepolis-Remake/main/userscripts/grepolis-skin-switcher.user.js
-// @downloadURL  https://raw.githubusercontent.com/KID6767/Aegis-Grepolis-Remake/main/userscripts/grepolis-skin-switcher.user.js
 // ==/UserScript==
 
-(function () {
+(function(){
   'use strict';
-  const THEMES = {
-    remaster2025: "local:config/mapping.remaster2025.json",
-    pirate_epic: "local:config/mapping.pirate_epic.json"
-  };
-  const DEFAULT_THEME = GM_getValue("theme", "remaster2025");
-  let mapping = {};
-  function loadLocalMapping(theme, cb) {
-    const path = (THEMES[theme] || THEMES.remaster2025);
-    if (path.startsWith("local:")) {
-      const localPath = path.replace("local:", "");
-      fetch(location.origin + "/" + localPath)
-        .then(r => r.json())
-        .then(j => { mapping = j; if (cb) cb(); })
-        .catch(e => { mapping = {}; if (cb) cb(); });
-      return;
-    }
-    cb && cb();
-  }
-  function swapUrl(original) {
-    if (!original) return original;
-    const clean = original.replace(/(\\?.*)$/, "");
-    if (mapping[clean]) return mapping[clean];
-    const file = clean.split("/").pop();
-    for (const k of Object.keys(mapping)) {
-      if (k.endsWith(file)) return mapping[k];
-    }
-    return original;
-  }
-  function processImg(img) {
-    if (!img || img.dataset.aegisSkinned === "1") return;
-    const newSrc = swapUrl(img.src);
-    if (newSrc && newSrc !== img.src) {
-      img.src = newSrc;
-      img.dataset.aegisSkinned = "1";
-    }
-  }
-  function processStyle(el) {
-    if (!el || el.dataset.aegisSkinned === "1") return;
-    const bg = getComputedStyle(el).getPropertyValue("background-image");
-    if (bg && bg.includes("url(")) {
-      const urlMatch = bg.match(/url\\([\"']?([^\"')]+)[\"']?\\)/);
-      if (urlMatch && urlMatch[1]) {
-        const newUrl = swapUrl(urlMatch[1]);
-        if (newUrl && newUrl !== urlMatch[1]) {
-          el.style.backgroundImage = url(\"\");
-          el.dataset.aegisSkinned = "1";
-        }
-      }
-    }
-  }
-  function scanOnce(root = document) {
-    root.querySelectorAll("img").forEach(processImg);
-    root.querySelectorAll("[style*='background'], .unit_icon, .ship_icon, .building_icon, .gp_background")
-        .forEach(processStyle);
-  }
-  function addSwitcher() {
-    const bar = document.createElement('div');
-    bar.id = 'aegis-switcher';
-    bar.innerHTML = 
-      <div style="position:fixed; right:12px; bottom:12px; z-index:2147483647;
-                  background:rgba(10,10,10,0.6); padding:8px; border-radius:8px; color:#fff; font:12px sans-serif;">
-        <label style="margin-right:6px;">Aegis:</label>
-        <select id="aegis-theme">
-          <option value="remaster2025">Remaster 2025</option>
-          <option value="pirate_epic">Pirate Epic</option>
-        </select>
-        <button id="aegis-refresh" style="margin-left:8px;">Refresh</button>
-      </div>;
-    document.body.appendChild(bar);
-    const sel = document.getElementById('aegis-theme');
-    sel.value = DEFAULT_THEME;
-    sel.addEventListener('change', () => {
-      GM_setValue('theme', sel.value);
-      loadLocalMapping(sel.value, () => { scanOnce(); });
+  const BASE_RAW = 'https://raw.githubusercontent.com/KID6767/Aegis/main';
+  const MAP_PATH = '/config/mapping.json';
+  const THEMES = ['classic','pirate_epic','emerald'];
+  let currentTheme = (typeof GM_getValue==='function'? GM_getValue('aegis_theme','classic') : 'classic');
+  let mapping = null;
+
+  const root = document.documentElement;
+  const ROLE_MAP = [['harbor','aegis-role-port'],['temple','aegis-role-temple'],['senate','aegis-role-senate'],['attack','aegis-role-attack']];
+
+  function rawUrl(p){ return BASE_RAW + p; }
+  function fxJson(url){
+    return new Promise((resolve)=>{
+      try{
+        GM_xmlhttpRequest({ method:'GET', url:url+'?t='+Date.now(),
+          onload:r=>{ try{ resolve(JSON.parse(r.responseText)); }catch(e){ resolve(null); } },
+          onerror:()=>resolve(null)
+        });
+      }catch(e){ fetch(url).then(r=>r.json()).then(resolve).catch(()=>resolve(null)); }
     });
-    document.getElementById('aegis-refresh').addEventListener('click', () => { scanOnce(); });
   }
 
-  function showWelcomeIfNeeded() {
-    if (GM_getValue("aegis_welcome_shown", false)) return;
-    try {
-      const box = document.createElement('div');
-      box.id = 'aegis-welcome-box';
-      box.style = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#0f0f10; color:#fff; padding:20px 30px; border-radius:12px; z-index:2147483647; text-align:center; max-width:520px; box-shadow:0 0 30px rgba(0,0,0,0.8);';
-      box.innerHTML = 
-        <img src="/assets/branding/logo.png" style="max-width:260px; margin-bottom:14px;" />
-        <h2 style="margin:0; font-family:sans-serif;">Witaj w Aegis!</h2>
-        <p style="font-family:sans-serif; font-size:14px; line-height:1.5; margin-top:10px;">
-          TwĂłj Ĺ›wiat wĹ‚aĹ›nie dostaĹ‚ nowe ĹĽycie:<br>
-          âś¨ Remaster 2025 â€“ odĹ›wieĹĽone klasyki<br>
-          â ď¸Ź Pirate-Epic â€“ totalna zmiana klimatu
-        </p>
-        <p style="margin-top:12px; font-size:12px; opacity:0.8;">Autor: KID6767</p>
-        <button id="aegis-welcome-close" style="margin-top:15px; padding:6px 12px; border:none; border-radius:6px; background:#e38b06; color:#fff; font-weight:bold; cursor:pointer;">Zaczynamy!</button>
-      ;
-      document.body.appendChild(box);
-      document.getElementById('aegis-welcome-close').onclick = () => { box.remove(); GM_setValue('aegis_welcome_shown', true); };
-    } catch (e) { console.warn('Aegis welcome failed', e); }
+  function loadThemeCSS(theme){
+    ['aegis-theme-css','aegis-anim-css'].forEach(id=>document.getElementById(id)?.remove());
+    const l1=document.createElement('link'); l1.id='aegis-theme-css'; l1.rel='stylesheet'; l1.href=rawUrl(/assets/themes//theme.css)+'?t='+Date.now();
+    const l2=document.createElement('link'); l2.id='aegis-anim-css'; l2.rel='stylesheet'; l2.href=rawUrl(/assets/themes//theme-anim.css)+'?t='+Date.now();
+    document.head.append(l1,l2);
+    root.classList.remove('aegis-anim-classic','aegis-anim-pirate_epic','aegis-anim-emerald');
+    root.classList.add('aegis-anim-'+theme);
+    ensureFog();
+  }
+  function ensureFog(){ if(!document.querySelector('.aegis-fog-overlay')){ const d=document.createElement('div'); d.className='aegis-fog-overlay'; document.body.appendChild(d); } }
+
+  function chooseKey(fname){
+    const map = mapping[currentTheme] || {};
+    if(map[fname]) return fname;
+    const base = fname.replace('@2x.png','').replace('.png','');
+    for(const k in map){ if(k.includes(base)) return k; }
+    return null;
+  }
+  function pickDensityKey(fname){
+    const hi = fname.replace(/\.png$/i,'@2x.png');
+    return (mapping[currentTheme] && mapping[currentTheme][hi]) ? hi : fname;
+  }
+  function addRoles(el, fname){
+    const base = fname.toLowerCase();
+    ROLE_MAP.forEach(([frag,cls])=>{ if(base.includes(frag)) el.classList.add(cls); });
+  }
+  function mapUrl(src, el){
+    const fname = src.split('/').pop().split('?')[0].toLowerCase();
+    const key = chooseKey(fname); if(!key) return null;
+    addRoles(el, key);
+    const best = pickDensityKey(key);
+    return rawUrl(mapping[currentTheme][best] || mapping[currentTheme][key]);
   }
 
-  addSwitcher();
-  loadLocalMapping(DEFAULT_THEME, () => { scanOnce(); showWelcomeIfNeeded(); });
-  const obs = new MutationObserver((muts) => {
-    muts.forEach(m => {
-      if (m.addedNodes && m.addedNodes.length) {
-        m.addedNodes.forEach(n => { if (n.nodeType === 1) scanOnce(n); });
-      }
+  function reskin(rootNode=document){
+    rootNode.querySelectorAll('img').forEach(img=>{
+      if(img.dataset.aegisSkinned==='1') return;
+      const nu = mapUrl(img.src, img); if(nu){ img.src = nu; img.dataset.aegisSkinned='1'; img.classList.add('aegis-icon'); }
     });
-  });
-  obs.observe(document.documentElement, { childList: true, subtree: true });
+    rootNode.querySelectorAll(\"[style*='background'], .unit_icon, .ship_icon, .building_icon, .gp_background\").forEach(el=>{
+      if(el.dataset.aegisSkinned==='1') return;
+      const bg = getComputedStyle(el).getPropertyValue('background-image');
+      const m = bg && bg.match(/url\\([\"']?([^\"')]+)[\"']?\\)/);
+      if(m && m[1]){ const nu = mapUrl(m[1], el); if(nu){ el.style.backgroundImage = url(\"\"); el.dataset.aegisSkinned='1'; } }
+    });
+  }
+
+  function setTheme(t){ if(!THEMES.includes(t)) return; currentTheme=t; GM_setValue && GM_setValue('aegis_theme',t); document.querySelectorAll('[data-aegis-skinned]').forEach(n=>n.removeAttribute('data-aegis-skinned')); loadThemeCSS(t); reskin(); updatePanel(); }
+  function setDark(on){ GM_setValue && GM_setValue('aegis_dark', !!on); document.documentElement.classList.toggle('aegis-dark', !!on); updatePanel(); }
+  function updatePanel(){ const s=document.getElementById('aegis-theme'); if(s) s.value=currentTheme; const d=document.getElementById('aegis-dark'); if(d) d.textContent = 'Dark: ' + ((GM_getValue && GM_getValue('aegis_dark',false))?'ON':'OFF'); }
+  function addPanel(){
+    const wrap=document.createElement('div');
+    wrap.innerHTML = '<div style=\"position:fixed;right:12px;bottom:12px;z-index:2147483647;background:rgba(10,10,10,.75);padding:10px;border-radius:10px;color:#fff;font:12px/1.3 system-ui,Segoe UI,Arial;\"><div style=\"display:flex;gap:6px;align-items:center;\"><strong>Aegis</strong><select id=\"aegis-theme\"><option value=\"classic\">Classic</option><option value=\"pirate_epic\">Pirate-Epic</option><option value=\"emerald\">Emerald</option></select><button id=\"aegis-dark\">Dark: OFF</button><button id=\"aegis-reskin\">Refresh</button></div></div>';
+    document.body.appendChild(wrap.firstElementChild);
+    document.getElementById('aegis-theme').addEventListener('change',e=>setTheme(e.target.value));
+    document.getElementById('aegis-dark').addEventListener('click',()=>setDark(!(GM_getValue && GM_getValue('aegis_dark',false))));
+    document.getElementById('aegis-reskin').addEventListener('click',()=>reskin());
+    updatePanel();
+  }
+
+  async function init(){
+    addPanel();
+    loadThemeCSS(currentTheme);
+    mapping = await fxJson(rawUrl(MAP_PATH)) || {"classic":{}, "pirate_epic":{}, "emerald":{}};
+    setDark(GM_getValue && GM_getValue('aegis_dark', false));
+    reskin();
+    const obs = new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>n.nodeType===1 && reskin(n))));
+    obs.observe(document.documentElement, {childList:true, subtree:true});
+  }
+  init();
 })();
+
+
+
+
