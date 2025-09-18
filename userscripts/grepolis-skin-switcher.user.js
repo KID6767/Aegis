@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Aegis â€” Grepolis Remaster (visual)
 // @namespace    https://github.com/KID6767/Aegis
-// @version      0.6.1
+// $10.6.2-stable
 // @description  Full visual remaster 2025: 3 themes, Dark, @2x, animations (waves, fire, aura, flags), sprite overlays.
 // @author       KID6767
 // @match        *://*.grepolis.com/*
@@ -105,3 +105,5 @@
   }
   init();
 })();
+
+
