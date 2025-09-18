@@ -1,20 +1,34 @@
-# Aegis – Grepolis Remaster
+<div align="center">
+  <img src="assets/branding/logo_aegis.png" width="96" style="border-radius:12px;animation:aegisPulse 2.6s ease-in-out infinite;">
+  <h1>Aegis – Grepolis Remaster</h1>
+  <p>Motywy, UI 2025, ekran powitalny, fajerwerki ✨</p>
+</div>
 
-**Wersja:** 0.9.0  
-**Co daje?** lżejszy, nowoczesny wygląd (fonty, tła, panele, przyciski), badge wersji, *welcome modal* oraz fajerwerki przy pierwszym uruchomieniu po aktualizacji.
+<style>
+@keyframes aegisPulse{0%{filter:drop-shadow(0 0 0 rgba(110,231,183,.0))}50%{filter:drop-shadow(0 0 16px rgba(110,231,183,.45))}100%{filter:drop-shadow(0 0 0 rgba(110,231,183,.0))}}
+</style>
 
-## Instalacja (Tampermonkey)
-1. Zainstaluj Tampermonkey (Chrome / Edge / Firefox).
-2. Skrypt: \$RawBase/userscripts/grepolis-skin-switcher.user.js\
+---
 
-## Zrzuty (placeholdery – podmień w repo/assets):
-- \ssets/bg/wave_tile.png\
-- \ssets/ui/panel_bg.png\
-- \ssets/branding/logo_aegis.png\
+## Funkcje
+- Nowy motyw CSS (czcionki, panel, tło, przyciski z połyskiem).
+- Wersja odznaki (prawy górny róg).
+- Ekran powitalny + fajerwerki (pierwsze uruchomienie po aktualizacji).
+- 3 motywy: **classic**, **pirate-epic**, **emerald**; skrót: <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>.
+- Loader CSS bez migotania.
 
-## Technicznie
-- CSS ładowany z \$RawBase/assets/themes/classic/theme.css\
-- Fajerwerki: Canvas + particles (lekko i bez bibliotek).
-- Pierwsze uruchomienie liczone **per wersja** (klucz \Aegis::seen::<ver>\).
+## Instalacja
+- Zainstaluj Tampermonkey.
+- Otwórz userscript:  
+  https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
+- Wejdź do Grepolis → zobaczysz ekran powitalny i badge wersji.  
+- Przełączanie motywu: <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>.
 
-© Aegis / KID6767
+## Zrzuty (placeholdery)
+<p>
+  <img src="assets/screenshots/classic_port.png" width="360">
+  <img src="assets/screenshots/pirate_ui.png" width="360">
+  <img src="assets/screenshots/emerald_buildings.png" width="360">
+</p>
+
+---

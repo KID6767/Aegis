@@ -49,4 +49,5 @@
 .aegis-btn:hover{ transform:translateY(-1px) scale(1.01) }
 .aegis-btn:active{ transform:translateY(0) scale(.99) }
 
-body, .ui_game, #main_container{ font-family:AegisUI, sans-serif !important }body{ background:#0c1117 url('../../screenshots/classic_port.png') center/cover fixed no-repeat }
+body, .ui_game, #main_container{ font-family:AegisUI, sans-serif !important }:root{ --aegis-accent:#34d399 }
+body{ background:#07140d url('../../screenshots/emerald_buildings.png') center/cover fixed no-repeat }

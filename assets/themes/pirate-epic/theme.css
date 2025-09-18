@@ -49,4 +49,12 @@
 .aegis-btn:hover{ transform:translateY(-1px) scale(1.01) }
 .aegis-btn:active{ transform:translateY(0) scale(.99) }
 
-body, .ui_game, #main_container{ font-family:AegisUI, sans-serif !important }body{ background:#0c1117 url('../../screenshots/classic_port.png') center/cover fixed no-repeat }
+body, .ui_game, #main_container{ font-family:AegisUI, sans-serif !important }:root{ --aegis-accent:#eab308 }
+body{ filter:saturate(1.08) contrast(1.04) hue-rotate(-12deg);
+      background:#0b0b0d url('../../screenshots/pirate_ui.png') center/cover fixed no-repeat }
+.aegis-btn{
+  background:
+    var(--aegis-gloss),
+    linear-gradient(180deg, #f8d148, #b78109 65%);
+  color:#1a1302;
+}
