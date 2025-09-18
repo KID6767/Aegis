@@ -1,20 +1,29 @@
-# ⚔️ Aegis — Grepolis Remake (0.3)
+# 🚀 Aegis – Grepolis Remake (0.1b – beta)
 
-Trzy motywy graficzne dla Grepolis + Dark Mode:
-- **Classic** (neutralny)
-- **Pirate-Epic** (ciemny, piracki)
-- **Emerald** (złoto-zielony)
+Dodatek dla Tampermonkey umożliwiający podmianę grafik w Grepolis na nowe style:
+- **Remaster 2025** – odświeżona wersja oryginalnych grafik
+- **Piracko-epicki** – kompletnie nowa szata graficzna
 
-## 🚀 Instalacja (Tampermonkey)
-1) Zainstaluj [Tampermonkey](https://www.tampermonkey.net/).
-2) Zainstaluj skrypt z RAW:
-   https://raw.githubusercontent.com/KID6767/Aegis-Grepolis-Remake/main/userscripts/grepolis-skin-switcher.user.js
-3) W grze użyj panelu **Aegis** (prawy-dół) by przełączać motywy / Dark.
+---
 
-## 📂 Struktura
-- `assets/units|buildings|ui/<theme>/<name>.png`
-- `config/mapping.json` — pełne ścieżki dla wszystkich motywów
-- `userscripts/grepolis-skin-switcher.user.js` — logika podmiany
+## 📥 Instalacja
 
-## 📝 Autor
-**KID6767** — MIT
+1. Zainstaluj rozszerzenie [Tampermonkey](https://www.tampermonkey.net/) w swojej przeglądarce.
+2. Kliknij w poniższy przycisk, aby dodać skrypt:
+
+[![Install Aegis](https://img.shields.io/badge/Install%20Aegis%20%E2%86%92-blue?logo=grepolis)](https://raw.githubusercontent.com/KID6767/Aegis/main/skrypty%20użytkownika/grepolis-skin-switcher.user.js)
+
+3. Po instalacji wejdź do Grepolis — w menu Tampermonkey pojawi się wpis:  
+   **Aegis – Grepolis Skin Switcher** ✅
+4. W prawym dolnym rogu gry pojawi się panel Aegis, gdzie można przełączać style.
+
+---
+
+## 📸 Podgląd
+
+![Tampermonkey active script](docs/screenshots/tampermonkey_aegis.png)
+
+---
+
+## ℹ️ Autor
+**KID6767** – Licencja MIT
