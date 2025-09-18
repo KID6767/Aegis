@@ -1,131 +1,178 @@
-﻿// ==UserScript==
-// @name         Aegis â€” Grepolis Skin Switcher
+// ==UserScript==
+// @name         Aegis — Grepolis Skin Switcher
 // @namespace    https://github.com/KID6767/Aegis-Grepolis-Remake
-// @version      0.1b
-// @description  Podmiana grafik Grepolis (Remaster 2025 / Pirate-Epic) â€” beta.
+// @version      0.3
+// @description  Classic, Pirate-Epic, Emerald — system motywów + Dark Mode dla całego Grepolis
 // @author       KID6767
-// @match        https://*.grepolis.com/*
-// @match        http://*.grepolis.com/*
+// @match        *://*.grepolis.com/*
 // @run-at       document-end
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_addStyle
 // @grant        GM_xmlhttpRequest
-// @connect      raw.githubusercontent.com
-// @updateURL    https://raw.githubusercontent.com/KID6767/Aegis-Grepolis-Remake/main/userscripts/grepolis-skin-switcher.user.js
-// @downloadURL  https://raw.githubusercontent.com/KID6767/Aegis-Grepolis-Remake/main/userscripts/grepolis-skin-switcher.user.js
 // ==/UserScript==
 
-(function () {
-  'use strict';
-  const THEMES = {
-    remaster2025: "local:config/mapping.remaster2025.json",
-    pirate_epic: "local:config/mapping.pirate_epic.json"
-  };
-  const DEFAULT_THEME = GM_getValue("theme", "remaster2025");
-  let mapping = {};
-  function loadLocalMapping(theme, cb) {
-    const path = (THEMES[theme] || THEMES.remaster2025);
-    if (path.startsWith("local:")) {
-      const localPath = path.replace("local:", "");
-      fetch(location.origin + "/" + localPath)
-        .then(r => r.json())
-        .then(j => { mapping = j; if (cb) cb(); })
-        .catch(e => { mapping = {}; if (cb) cb(); });
-      return;
-    }
-    cb && cb();
+(function(){"use strict";
+  const BASE_RAW = "https://raw.githubusercontent.com/KID6767/Aegis-Grepolis-Remake/main";
+  const MAP_PATH = "/config/mapping.json";
+  const THEMES = ["classic","pirate_epic","emerald"];
+  let currentTheme = GM_getValue("aegis_theme","classic");
+  let mapping = null;
+
+  function rawUrl(path){ return BASE_RAW ? BASE_RAW + path : path; }
+
+  function fetchJson(url) {
+    return new Promise((resolve) => {
+      try {
+        GM_xmlhttpRequest({
+          method: "GET",
+          url: url + "?t=" + Date.now(),
+          onload: (res) => { try { resolve(JSON.parse(res.responseText)); } catch(e){ console.error("[Aegis] JSON parse fail", e); resolve(null); } },
+          onerror: () => resolve(null)
+        });
+      } catch(e) {
+        fetch(url).then(r=>r.json()).then(resolve).catch(()=>resolve(null));
+      }
+    });
   }
-  function swapUrl(original) {
-    if (!original) return original;
-    const clean = original.replace(/(\\?.*)$/, "");
-    if (mapping[clean]) return mapping[clean];
-    const file = clean.split("/").pop();
-    for (const k of Object.keys(mapping)) {
-      if (k.endsWith(file)) return mapping[k];
+
+  function matchAndSwapImg(img) {
+    if (!mapping) return;
+    const src = img.src;
+    const fname = src.split("/").pop().split("?")[0].toLowerCase();
+    let newUrl = mapping[currentTheme][fname];
+    if (!newUrl) {
+      for (const key of Object.keys(mapping[currentTheme])) {
+        if (fname.includes(key.replace(".png",""))) { newUrl = mapping[currentTheme][key]; break; }
+      }
     }
-    return original;
-  }
-  function processImg(img) {
-    if (!img || img.dataset.aegisSkinned === "1") return;
-    const newSrc = swapUrl(img.src);
-    if (newSrc && newSrc !== img.src) {
-      img.src = newSrc;
+    if (newUrl && img.dataset.aegisSkinned !== "1") {
+      img.src = rawUrl(newUrl);
       img.dataset.aegisSkinned = "1";
     }
   }
-  function processStyle(el) {
-    if (!el || el.dataset.aegisSkinned === "1") return;
+
+  function matchAndSwapStyle(el) {
+    if (!mapping) return;
     const bg = getComputedStyle(el).getPropertyValue("background-image");
-    if (bg && bg.includes("url(")) {
-      const urlMatch = bg.match(/url\\([\"']?([^\"')]+)[\"']?\\)/);
-      if (urlMatch && urlMatch[1]) {
-        const newUrl = swapUrl(urlMatch[1]);
-        if (newUrl && newUrl !== urlMatch[1]) {
-          el.style.backgroundImage = url(\"\");
-          el.dataset.aegisSkinned = "1";
+    const m = bg && bg.match(/url\(["']?([^"')]+)["']?\)/);
+    if (m && m[1]) {
+      const url = m[1];
+      const fname = url.split("/").pop().split("?")[0].toLowerCase();
+      let newUrl = mapping[currentTheme][fname];
+      if (!newUrl) {
+        for (const key of Object.keys(mapping[currentTheme])) {
+          if (fname.includes(key.replace(".png",""))) { newUrl = mapping[currentTheme][key]; break; }
         }
+      }
+      if (newUrl && el.dataset.aegisSkinned !== "1") {
+        el.style.backgroundImage = `url("${rawUrl(newUrl)}")`;
+        el.dataset.aegisSkinned = "1";
       }
     }
   }
-  function scanOnce(root = document) {
-    root.querySelectorAll("img").forEach(processImg);
+
+  function reskin(root=document) {
+    root.querySelectorAll("img").forEach(matchAndSwapImg);
     root.querySelectorAll("[style*='background'], .unit_icon, .ship_icon, .building_icon, .gp_background")
-        .forEach(processStyle);
-  }
-  function addSwitcher() {
-    const bar = document.createElement('div');
-    bar.id = 'aegis-switcher';
-    bar.innerHTML = 
-      <div style="position:fixed; right:12px; bottom:12px; z-index:2147483647;
-                  background:rgba(10,10,10,0.6); padding:8px; border-radius:8px; color:#fff; font:12px sans-serif;">
-        <label style="margin-right:6px;">Aegis:</label>
-        <select id="aegis-theme">
-          <option value="remaster2025">Remaster 2025</option>
-          <option value="pirate_epic">Pirate Epic</option>
-        </select>
-        <button id="aegis-refresh" style="margin-left:8px;">Refresh</button>
-      </div>;
-    document.body.appendChild(bar);
-    const sel = document.getElementById('aegis-theme');
-    sel.value = DEFAULT_THEME;
-    sel.addEventListener('change', () => {
-      GM_setValue('theme', sel.value);
-      loadLocalMapping(sel.value, () => { scanOnce(); });
-    });
-    document.getElementById('aegis-refresh').addEventListener('click', () => { scanOnce(); });
+        .forEach(matchAndSwapStyle);
   }
 
-  function showWelcomeIfNeeded() {
-    if (GM_getValue("aegis_welcome_shown", false)) return;
-    try {
-      const box = document.createElement('div');
-      box.id = 'aegis-welcome-box';
-      box.style = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#0f0f10; color:#fff; padding:20px 30px; border-radius:12px; z-index:2147483647; text-align:center; max-width:520px; box-shadow:0 0 30px rgba(0,0,0,0.8);';
-      box.innerHTML = 
-        <img src="/assets/branding/logo.png" style="max-width:260px; margin-bottom:14px;" />
-        <h2 style="margin:0; font-family:sans-serif;">Witaj w Aegis!</h2>
-        <p style="font-family:sans-serif; font-size:14px; line-height:1.5; margin-top:10px;">
-          TwĂłj Ĺ›wiat wĹ‚aĹ›nie dostaĹ‚ nowe ĹĽycie:<br>
-          âś¨ Remaster 2025 â€“ odĹ›wieĹĽone klasyki<br>
-          â ď¸Ź Pirate-Epic â€“ totalna zmiana klimatu
-        </p>
-        <p style="margin-top:12px; font-size:12px; opacity:0.8;">Autor: KID6767</p>
-        <button id="aegis-welcome-close" style="margin-top:15px; padding:6px 12px; border:none; border-radius:6px; background:#e38b06; color:#fff; font-weight:bold; cursor:pointer;">Zaczynamy!</button>
-      ;
-      document.body.appendChild(box);
-      document.getElementById('aegis-welcome-close').onclick = () => { box.remove(); GM_setValue('aegis_welcome_shown', true); };
-    } catch (e) { console.warn('Aegis welcome failed', e); }
+  function setTheme(t) {
+    if (!THEMES.includes(t)) return;
+    currentTheme = t;
+    GM_setValue("aegis_theme", t);
+    // reset flags so we can reskin already-processed elements
+    document.querySelectorAll("[data-aegis-skinned]").forEach(el=>el.removeAttribute("data-aegis-skinned"));
+    reskin();
+    updatePanel();
+    loadThemeCSS(t);
+
   }
 
-  addSwitcher();
-  loadLocalMapping(DEFAULT_THEME, () => { scanOnce(); showWelcomeIfNeeded(); });
-  const obs = new MutationObserver((muts) => {
-    muts.forEach(m => {
-      if (m.addedNodes && m.addedNodes.length) {
-        m.addedNodes.forEach(n => { if (n.nodeType === 1) scanOnce(n); });
-      }
-    });
-  });
-  obs.observe(document.documentElement, { childList: true, subtree: true });
+  // Dark mode
+  let darkStyleEl = null;
+  function setDark(on) {
+    if (on) {
+      if (darkStyleEl) return;
+      darkStyleEl = document.createElement("style");
+      darkStyleEl.textContent = `
+        body, .game_inner_box, .ui_box, .gpwindow_content, .forum_content, .login_page { background-color:#111 !important; color:#ddd !important; }
+        a, .gpwindow_content a, .forum_content a { color:#4da6ff !important; }
+        .button, .btn, input[type="submit"] { background-color:#333 !important; color:#eee !important; border:1px solid #555 !important; }
+      `;
+      document.head.appendChild(darkStyleEl);
+      GM_setValue("aegis_dark", true);
+    } else {
+      if (darkStyleEl) darkStyleEl.remove();
+      darkStyleEl = null;
+      GM_setValue("aegis_dark", false);
+    }
+    updatePanel();
+  }
+
+  function updatePanel() {
+    const themeSel = document.getElementById("aegis-theme");
+    if (themeSel) themeSel.value = currentTheme;
+    const darkBtn = document.getElementById("aegis-dark");
+    if (darkBtn) darkBtn.textContent = "Dark: " + (darkStyleEl ? "ON" : "OFF");
+  }
+
+  function addPanel() {
+    const box = document.createElement("div");
+    box.innerHTML = `
+      <div style="position:fixed; right:12px; bottom:12px; z-index:2147483647; background:rgba(10,10,10,0.75);
+                  padding:10px; border-radius:10px; color:#fff; font:12px/1.3 system-ui,Segoe UI,Arial;">
+        <div style="display:flex; gap:6px; align-items:center;">
+          <strong>Aegis</strong>
+          <select id="aegis-theme">
+            <option value="classic">Classic</option>
+            <option value="pirate_epic">Pirate-Epic</option>
+            <option value="emerald">Emerald</option>
+          </select>
+          <button id="aegis-dark">Dark: OFF</button>
+        </div>
+      </div>`;
+    document.body.appendChild(box.firstElementChild);
+    document.getElementById("aegis-theme").addEventListener("change",(e)=>setTheme(e.target.value));
+    document.getElementById("aegis-dark").addEventListener("click",()=>setDark(!darkStyleEl));
+    updatePanel();
+  }
+// fragment – wczytanie CSS motywu i obsługa @2x
+function loadThemeCSS(theme) {
+  const id = 'aegis-theme-css';
+  document.getElementById(id)?.remove();
+  const link = document.createElement('link');
+  link.id = id;
+  link.rel = 'stylesheet';
+  link.href = `${BASE_RAW}/assets/themes/${theme}/theme.css?t=${Date.now()}`;
+  document.head.appendChild(link);
+}
+
+function pickDensity(urlBase) {
+  const ratio = window.devicePixelRatio || 1;
+  if (ratio >= 1.75) return urlBase.replace('.png', '@2x.png');
+  return urlBase; // @1x domyślne
+}
+
+// w reskin():
+if (newUrl) {
+  const final = newUrl.endsWith('.png') ? pickDensity(rawUrl(newUrl)) : rawUrl(newUrl);
+  img.src = final;
+  img.classList.add('aegis-icon');
+}
+
+  async function init() {
+    addPanel();
+    mapping = await fetchJson(rawUrl(MAP_PATH));
+    if (!mapping) { console.warn("[Aegis] mapping.json nie załadowany"); mapping = {"classic":{}, "pirate_epic":{}, "emerald":{}}; }
+    if (GM_getValue("aegis_dark", false)) setDark(true);
+    reskin();
+    loadThemeCSS(currentTheme);
+
+    const obs = new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>n.nodeType===1 && reskin(n))));
+    obs.observe(document.documentElement, {childList:true, subtree:true});
+  }
+
+  init();
 })();

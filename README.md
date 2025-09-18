@@ -1,10 +1,20 @@
-﻿# Aegis â€” Grepolis Remake (0.1b - beta)
+# ⚔️ Aegis — Grepolis Remake (0.3)
 
-Quick start:
-1. Unpack or place the contents of this folder into the root of your GitHub repo (userscripts/, config/, assets/, docs/, tools/).
-2. Install Tampermonkey in your browser.
-3. Install the userscript from userscripts/grepolis-skin-switcher.user.js (raw link from your repo).
-4. Open Grepolis, log in, and you should see the Aegis switcher in the bottom-right corner.
+Trzy motywy graficzne dla Grepolis + Dark Mode:
+- **Classic** (neutralny)
+- **Pirate-Epic** (ciemny, piracki)
+- **Emerald** (złoto-zielony)
 
-Author: KID6767
-License: MIT
+## 🚀 Instalacja (Tampermonkey)
+1) Zainstaluj [Tampermonkey](https://www.tampermonkey.net/).
+2) Zainstaluj skrypt z RAW:
+   https://raw.githubusercontent.com/KID6767/Aegis-Grepolis-Remake/main/userscripts/grepolis-skin-switcher.user.js
+3) W grze użyj panelu **Aegis** (prawy-dół) by przełączać motywy / Dark.
+
+## 📂 Struktura
+- `assets/units|buildings|ui/<theme>/<name>.png`
+- `config/mapping.json` — pełne ścieżki dla wszystkich motywów
+- `userscripts/grepolis-skin-switcher.user.js` — logika podmiany
+
+## 📝 Autor
+**KID6767** — MIT
