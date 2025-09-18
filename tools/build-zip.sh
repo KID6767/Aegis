@@ -1,4 +1,4 @@
-#!/bin/sh
-DIR=$(dirname "$0")/..
-cd "$DIR"
-zip -r Aegis-0.3-complete.zip ./*
+﻿#!/bin/sh
+DIR=\/..
+cd \"\\"
+zip -r Aegis-Grepolis-Remake-0.1b.zip ./*

@@ -1,4 +1,4 @@
-@echo off
-powershell -Command "Compress-Archive -Path * -DestinationPath Aegis-0.3-complete.zip -Force"
-echo [*] Spakowano do: Aegis-0.3-complete.zip
+﻿@echo off
+powershell -Command "Compress-Archive -Path * -DestinationPath Aegis-Grepolis-Remake-0.1b.zip -Force"
+echo [*] Spakowano do: Aegis-Grepolis-Remake-0.1b.zip
 pause
