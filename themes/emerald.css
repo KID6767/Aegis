@@ -1,4 +1,0 @@
-﻿body{font-family:'Cinzel Decorative',serif;background:#071a12;color:#cfe}
-.gpwindow_header, .button, .btn_confirm{border-color:#06d47a !important; box-shadow:0 0 8px #06d47a55}
-.logo{animation:aegisShine 3s linear infinite}
-@keyframes aegisShine{0%{filter:brightness(1)}50%{filter:brightness(1.6)}100%{filter:brightness(1)}}

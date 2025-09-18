@@ -1,10 +1,10 @@
 {
-  "version": "0.9.1-dev",
-  "themes": ["classic","emerald","pirate","dark"],
-  "defaultTheme": "classic",
-  "assets": {
-    "ui/ribbon": "inline-svg",
-    "ui/water-overlay": "inline-css",
-    "ui/dark": "inline-css"
-  }
+  ""theme"": ""classic"",
+  ""assetsBase"": ""https://raw.githubusercontent.com/KID6767/Aegis/main/assets"",
+  ""files"": [
+    { ""src"": ""bg/wave_tile.png"",    ""type"": ""bg"" },
+    { ""src"": ""ui/panel_bg.png"",     ""type"": ""panel"" },
+    { ""src"": ""ui/button_gloss.png"", ""type"": ""ui"" },
+    { ""src"": ""branding/logo_aegis.png"", ""type"": ""logo"" }
+  ]
 }

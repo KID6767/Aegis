@@ -1,4 +1,0 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap');
-body{font-family:'Cinzel Decorative',serif}
-@keyframes waves{0%{background-position:0 0}100%{background-position:180px 0}}
-.aegis-water{background:linear-gradient(180deg,#0fb5ff22,#00447733),url('https://raw.githubusercontent.com/KID6767/Aegis/main/assets/classic/background/port.jpg?v=0.8.1-dev') center/cover fixed;animation:waves 14s linear infinite}

@@ -1,4 +1,0 @@
-﻿body{background:#0d1117;color:#d0d6dc}
-@keyframes fog{0%{opacity:.55}50%{opacity:.9}100%{opacity:.55}}
-body::after{content:'';position:fixed;inset:0;background:url('https://raw.githubusercontent.com/KID6767/Aegis/main/assets/dark/background/fog.png?v=0.8.1-dev') repeat;animation:fog 22s ease-in-out infinite;pointer-events:none}
-.gpwindow_header,.button,.btn_confirm{background:#161b22;border-color:#30363d;color:#c9d1d9}
