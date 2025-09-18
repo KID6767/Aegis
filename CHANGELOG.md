@@ -1,4 +1,7 @@
-﻿## [0.6.3-stable] - 2025-09-18
+﻿## [0.6.4-stable] - 2025-09-18
+- Auto build: version sync, screens, README/CHANGELOG, ZIP + SHA256, push, release.
+
+## [0.6.3-stable] - 2025-09-18
 - Auto build: version sync, screens, README/CHANGELOG, ZIP + SHA256, push, release.
 
 ## [0.6.2-stable] - 2025-09-18
@@ -12,5 +15,6 @@
 - MgieĹ‚ka na mapie Ĺ›wiata, iskry/puls na akcji â€žAtakujâ€ť.
 - Userscript 0.6.1 â€” Ĺ‚adowanie stylĂłw/animacji, podmiana @2x, panel motywĂłw + Dark Mode.
 - README (PL) z galeriÄ… / instrukcjÄ….
+
 
 
