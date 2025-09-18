@@ -1,0 +1,8 @@
+﻿<svg xmlns='http://www.w3.org/2000/svg' width='512' height='320' viewBox='0 0 512 320'>
+  <rect width='100%' height='100%' fill='#0b0b0d'/>
+  <g transform='translate(40,30)'>
+    <rect x='0' y='140' width='432' height='70' rx='8' fill='#2f2b2a' />
+    <polygon points='140,140 300,30 380,140' fill='#2d2d2d' stroke='#b66a2e' stroke-width='6'/>
+    <text x='60' y='210' font-family='sans-serif' font-size='28' fill='#d9b48a'>Pirate - Epic</text>
+  </g>
+</svg>
