@@ -1,52 +1,53 @@
 ﻿{
-  "themes": {
-    "classic": {
-      "name": "Classic",
-      "assets": {
-        "ui/button.png": "assets/classic/ui/button.png",
-        "units/bireme.png": "assets/classic/units/bireme.png",
-        "units/fire_ship.png": "assets/classic/units/fire_ship.png",
-        "background/port.jpg": "assets/classic/background/port.jpg",
-        "background/city.jpg": "assets/classic/background/city.jpg"
-      },
-      "css": "themes/classic.css"
+  "themes":{
+    "classic":{
+      "name":"Classic",
+      "css":"themes/classic.css",
+      "assets":{
+        "ui/button.png":"assets/classic/ui/button.png",
+        "units/bireme.png":"assets/classic/units/bireme.png",
+        "units/fire_ship.png":"assets/classic/units/fire_ship.png",
+        "background/port.jpg":"assets/classic/background/port.jpg",
+        "background/city.jpg":"assets/classic/background/city.jpg",
+        "branding/logo.png":"assets/classic/branding/logo.png"
+      }
     },
-    "pirate": {
-      "name": "Pirate Epic",
-      "assets": {
-        "ui/button.png": "assets/pirate/ui/button.png",
-        "units/bireme.png": "assets/pirate/units/bireme_pirate.png",
-        "units/fire_ship.png": "assets/pirate/units/fire_ship_pirate.png",
-        "background/port.jpg": "assets/pirate/background/port_fire.jpg",
-        "background/city.jpg": "assets/pirate/background/city_dark.jpg",
-        "logo.png": "assets/pirate/branding/logo.png"
-      },
-      "css": "themes/pirate.css"
+    "pirate":{
+      "name":"Pirate Epic",
+      "css":"themes/pirate.css",
+      "assets":{
+        "ui/button.png":"assets/pirate/ui/button.png",
+        "units/bireme.png":"assets/pirate/units/bireme_pirate.png",
+        "units/fire_ship.png":"assets/pirate/units/fire_ship_pirate.png",
+        "background/port.jpg":"assets/pirate/background/port_fire.jpg",
+        "background/city.jpg":"assets/pirate/background/city_dark.jpg",
+        "branding/logo.png":"assets/pirate/branding/logo.png"
+      }
     },
-    "emerald": {
-      "name": "Emerald",
-      "assets": {
-        "ui/button.png": "assets/emerald/ui/button.png",
-        "units/bireme.png": "assets/emerald/units/bireme.png",
-        "units/fire_ship.png": "assets/emerald/units/fire_ship.png",
-        "background/port.jpg": "assets/emerald/background/port_green.jpg",
-        "background/city.jpg": "assets/emerald/background/city_gold.jpg",
-        "logo.png": "assets/emerald/branding/logo.png"
-      },
-      "css": "themes/emerald.css"
+    "emerald":{
+      "name":"Emerald",
+      "css":"themes/emerald.css",
+      "assets":{
+        "ui/button.png":"assets/emerald/ui/button.png",
+        "units/bireme.png":"assets/emerald/units/bireme.png",
+        "units/fire_ship.png":"assets/emerald/units/fire_ship.png",
+        "background/port.jpg":"assets/emerald/background/port_green.jpg",
+        "background/city.jpg":"assets/emerald/background/city_gold.jpg",
+        "branding/logo.png":"assets/emerald/branding/logo.png"
+      }
     },
-    "dark": {
-      "name": "Dark Mode",
-      "assets": {
-        "ui/button.png": "assets/dark/ui/button.png",
-        "units/bireme.png": "assets/dark/units/bireme.png",
-        "units/fire_ship.png": "assets/dark/units/fire_ship.png",
-        "background/port.jpg": "assets/dark/background/port_night.jpg",
-        "background/city.jpg": "assets/dark/background/city_mist.jpg",
-        "worldmap.jpg": "assets/dark/background/world_map.jpg",
-        "logo.png": "assets/dark/branding/logo.png"
-      },
-      "css": "themes/dark.css"
+    "dark":{
+      "name":"Dark Mode",
+      "css":"themes/dark.css",
+      "assets":{
+        "ui/button.png":"assets/dark/ui/button.png",
+        "units/bireme.png":"assets/dark/units/bireme.png",
+        "units/fire_ship.png":"assets/dark/units/fire_ship.png",
+        "background/port.jpg":"assets/dark/background/port_night.jpg",
+        "background/city.jpg":"assets/dark/background/city_mist.jpg",
+        "branding/logo.png":"assets/dark/branding/logo.png",
+        "background/fog.png":"assets/dark/background/fog.png"
+      }
     }
   }
 }

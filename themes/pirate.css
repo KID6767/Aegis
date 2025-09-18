@@ -1,3 +1,4 @@
-﻿body { font-family:'Cinzel Decorative',serif; background:#0a0a0a; color:#eee; }
-.logo { animation:glow 2s ease-in-out infinite alternate; }
-@keyframes glow { from {filter:drop-shadow(0 0 2px red);} to {filter:drop-shadow(0 0 10px orange);} }
+﻿body{font-family:'Cinzel Decorative',serif;background:#080b10;color:#eee}
+.logo, .gpwindow_header{filter:drop-shadow(0 0 2px #f80);animation:aegisGlow 2.2s ease-in-out infinite alternate}
+@keyframes aegisGlow{from{filter:drop-shadow(0 0 2px #f80)}to{filter:drop-shadow(0 0 12px #ffbf00)}}
+a, .button, .btn_confirm{color:#ffd47a !important}
