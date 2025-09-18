@@ -1,13 +1,15 @@
 # CHANGELOG
 
-## [0.3] — 2025-09-17
-- BASE_RAW ustawiony na repo KID6767 (raw.githubusercontent.com/...)
-- Pełny szkielet motywów (Classic / Pirate-Epic / Emerald).
-- mapping.json z jednostkami, budynkami i ikonami UI.
-- Userscript 0.3: loader mappingu + panel + Dark Mode.
+## [0.6-dev] — 2025-09-18
+- Dodano animowane tła: fale w porcie, shimmer w Akademii, świeczki w Świątyni, chorągwie w Senacie.
+- Dodano mgłę na mapie świata.
+- Dodano iskry na ikonie ataku i pulsujący efekt przycisku „Atakuj”.
+- Dodano motywowe animacje: Pirate-Epic (ogień), Emerald (aura/glify), Classic (shine).
+- Userscript 0.6: ładowanie theme.css i theme-anim.css, role elementów, klasy animacyjne, RAW loader.
+- Utrzymano @2x (HiDPI) i panel Aegis (motyw/Dark/Refresh).
 
-## [0.2]
-- Dark Mode globalny, panel przełączników.
+## [0.5-dev] — 2025-09-18
+- Animacje bazowe, rozszerzone assety, userscript 0.5.
 
-## [0.1b]
-- Prototyp podmiany (kolonizator), struktura repo.
+## [0.4-dev] — 2025-09-18
+- Motywy CSS, @2x, userscript 0.4, mapping.
