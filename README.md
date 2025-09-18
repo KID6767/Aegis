@@ -1,4 +1,12 @@
-﻿### Aegis 0.6.4-stable
+﻿### Aegis 0.6.5-stable
+SHA-256: 506b4d54cdee53386314de9f2afc76b0aac97d962efb4d5213190bc9f0cbf7d8
+Build: 2025-09-18 17:41
+
+![](assets/screens/classic_port.png)
+![](assets/screens/pirate_ui.png)
+![](assets/screens/emerald_buildings.png)
+![](assets/screens/world_map.png)
+### Aegis 0.6.4-stable
 SHA-256: d02d0a1a9cee71fad471a4a5fe1693434561a3c3959aa11c4273374b7df90342
 Build: 2025-09-18 17:40
 
@@ -55,6 +63,8 @@ PeĹ‚ny wizualny remaster Grepolis: trzy motywy (Classic / Pirate-Epic / Emera
 - userscripts/grepolis-skin-switcher.user.js â€” skrypt Tampermonkey
 
 Autor: **KID6767** â€” Licencja: MIT
+
+
 
 
 
