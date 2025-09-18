@@ -1,105 +1,134 @@
-﻿// ==UserScript==
-// @name         Aegis – Grepolis Remaster
+==UserScript==
+// @name         Aegis — Grepolis Remaster
 // @namespace    https://github.com/KID6767/Aegis
-// @version      0.8.1-dev
-// @description  Dynamiczne skiny Grepolis (Classic, Pirate, Emerald, Dark) – real-time podmiana grafik + CSS + panel
-// @author       KID6767
+// @version      0.9.1-dev
+// @description  Widoczne od razu: powitanie + fajerwerki, tryb ciemny, odświeżone UI, przełącznik motywów.
 // @match        https://*.grepolis.com/*
-// @updateURL    https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
-// @downloadURL  https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
+// @match        https://*.grepolis.pl/*
+// @run-at       document-end
 // @grant        none
-// ==/UserScript==
+==/UserScript==
 
-(async () => {
+(function(){
   'use strict';
-  const REPO = 'https://raw.githubusercontent.com/KID6767/Aegis/main';
-  const MAP  = REPO + '/config/mapping.json?v=0.8.1-dev';
-  const KEY  = 'aegis-theme';
-  const DEF  = localStorage.getItem(KEY) || 'pirate';
+  const AEGIS_NS = 'aegis';
+  const VER = '0.9.1-dev';
+  const qs  = (s, r=document)=>r.querySelector(s);
+  const qsa = (s, r=document)=>Array.from(r.querySelectorAll(s));
+  const onReady = (fn)=> (document.readyState === 'loading') ? document.addEventListener('DOMContentLoaded', fn) : fn();
+  const save = (k,v)=>localStorage.setItem(\\:\\, v);
+  const load = (k,d=null)=>localStorage.getItem(\\:\\) ?? d;
 
-  function css(href){
-    const l=document.createElement('link'); l.rel='stylesheet'; l.href=href; document.head.appendChild(l);
+  const baseCSS = 
+  :root{
+    --aegis-accent:#00d084; --aegis-gold:#d4af37; --aegis-ink:#0e0f13; --aegis-bg:#111318;
   }
-  function style(t){
-    const s=document.createElement('style'); s.textContent=t; document.head.appendChild(s);
+  .aegis-ribbon{
+    position:fixed; left:-40px; top:16px; transform:rotate(-45deg);
+    background:linear-gradient(90deg,var(--aegis-gold),#ffdd76); color:#1b1400; font-weight:700;
+    font-family:Segoe UI,Arial; letter-spacing:.5px; padding:6px 48px; z-index:999999;
+    box-shadow:0 8px 18px rgba(0,0,0,.35);
   }
-  function el(n,attrs={},kids=[]){const e=document.createElement(n);Object.entries(attrs).forEach(([k,v])=>e[k]=v);kids.forEach(k=>e.appendChild(k));return e;}
+  .aegis-panel{
+    position:fixed; right:18px; bottom:18px; z-index:999999;
+    background:#1d1f26; color:#eee; border:1px solid #2b2f3a; border-radius:12px;
+    box-shadow:0 10px 20px rgba(0,0,0,.35); padding:10px 12px; font-family:Segoe UI,Arial;
+  }
+  .aegis-panel h3{margin:0 0 8px 0; font-size:13px; color:#cfd3dc; font-weight:600;}
+  .aegis-panel select, .aegis-panel button{
+    all:unset; background:#2a2f3a; color:#e8ecf4; padding:6px 10px; border-radius:8px; cursor:pointer;
+    margin-right:6px; font-size:12px;
+  }
+  .aegis-panel button:hover, .aegis-panel select:hover{filter:brightness(1.1)}
+  .aegis-chip{display:inline-block; padding:2px 8px; border-radius:999px; background:#223; color:#aef; font-size:11px; margin-left:6px;}
+  body.aegis-dark{ background:#0c0e12 !important; }
+  .aegis-water::after{
+    content:""; position:fixed; left:0; top:0; right:0; bottom:0; pointer-events:none;
+    background: radial-gradient(60% 50% at 70% 85%, rgba(255,255,255,.06), transparent 60%),
+                radial-gradient(45% 35% at 20% 80%, rgba(0,224,224,.08), transparent 55%);
+    mix-blend-mode: screen; animation:aegis-breathe 5s ease-in-out infinite;
+  }
+  @keyframes aegis-breathe{ 0%,100%{opacity:.35} 50%{opacity:.65} }
+  .aegis-outline *{ outline-color: rgba(0,208,132,.25); }
+  ;
+  const styleTag = document.createElement('style'); styleTag.id='aegis-styles'; styleTag.textContent=baseCSS;
+  document.documentElement.appendChild(styleTag);
 
-  let mapping;
-  try{ mapping = await fetch(MAP).then(r=>r.json()); }catch(e){ console.error('[Aegis] mapping.json error',e); return; }
-
-  function applyTheme(name){
-    const def = mapping.themes[name]; if(!def) return;
-    // CSS
-    css(REPO + '/' + def.css + '?v=0.8.1-dev');
-
-    // globalny font + reset focusów
-    style(@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap');
-      *{outline:none}
-      .aegis-badge{position:fixed;left:10px;bottom:10px;padding:6px 10px;border-radius:8px;background:rgba(0,0,0,.6);color:#fff;font:12px "Cinzel Decorative",serif;z-index:99999}
-      .aegis-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:99998}
-      .aegis-card{min-width:420px;max-width:520px;background:#101418;border:1px solid #2a3b4a;border-radius:14px;box-shadow:0 0 30px #000;padding:18px;color:#e8f0ff}
-      .aegis-title{font:700 22px "Cinzel Decorative",serif;margin:0 0 8px}
-      .aegis-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
-      .aegis-btn{cursor:pointer;border:0;border-radius:8px;padding:8px 12px;background:#1e2b36;color:#cfe;transition:.2s}
-      .aegis-btn:hover{transform:translateY(-1px);background:#254151}
-    );
-
-    // Podmiana grafik IMG po fragmencie ścieżki (działa od razu – placeholdery też się wyświetlą)
-    const map = def.assets || {};
-    const imgs = document.querySelectorAll('img');
-    imgs.forEach(img=>{
-      const src = img.getAttribute('src')||'';
-      Object.keys(map).forEach(pattern=>{
-        if(src.includes(pattern)){
-          img.setAttribute('src', REPO + '/' + map[pattern] + '?v=0.8.1-dev');
-        }
+  function fireworksOnce(){
+    const canvas = document.createElement('canvas');
+    canvas.id='aegis-confetti'; canvas.style.cssText='position:fixed;inset:0;z-index:999998;pointer-events:none;';
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    const resize=()=>{canvas.width=innerWidth; canvas.height=innerHeight}; resize(); addEventListener('resize',resize);
+    const parts = Array.from({length:180},()=>({
+      x: Math.random()*canvas.width, y: -20 - Math.random()*100, r: 4+Math.random()*6,
+      vx: -1 + Math.random()*2, vy: 1 + Math.random()*2, c: \hsl(\ 90% 60%)\, a:1
+    }));
+    let t=0, raf;
+    (function tick(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      parts.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=0.03; p.a-=0.008;
+        ctx.globalAlpha=Math.max(p.a,0); ctx.fillStyle=p.c;
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
       });
-    });
-
-    // Znaczek wersji
-    const old = document.querySelector('.aegis-badge'); if(old) old.remove();
-    document.body.appendChild(el('div',{className:'aegis-badge',innerText:Aegis  • }));
-    console.log('[Aegis] Theme applied:', def.name);
+      if((t++)<400){ raf=requestAnimationFrame(tick) } else { cancelAnimationFrame(raf); canvas.remove(); }
+    })();
   }
 
-  // Panel wyboru motywu
-  function mountPanel(){
-    const wrap = document.createElement('div');
-    wrap.style.cssText = 'position:fixed;top:68px;right:10px;z-index:99999;background:rgba(0,0,0,.72);padding:8px;border-radius:10px;color:#fff;font:14px "Cinzel Decorative",serif;box-shadow:0 2px 10px rgba(0,0,0,.4)';
-    const lab = el('span',{innerText:'Motyw: '});
-    const sel = el('select');
-    Object.entries(mapping.themes).forEach(([k,v])=>{
-      const o = el('option',{value:k,innerText:v.name}); if(k===localStorage.getItem(KEY)||k===DEF && !localStorage.getItem(KEY)) o.selected=true;
-      sel.appendChild(o);
-    });
-    sel.onchange = e => { localStorage.setItem(KEY,e.target.value); location.reload(); };
-    wrap.append(lab,sel);
-    document.body.appendChild(wrap);
-  }
-
-  // Ekran powitalny (jednorazowo po update)
   function welcome(){
-    const k='aegis-welc-'+('0.8.1-dev'.replace(/\W/g,''));
-    if(localStorage.getItem(k)) return;
-    localStorage.setItem(k,'1');
-    const modal = el('div',{className:'aegis-modal'});
-    const card  = el('div',{className:'aegis-card'});
-    card.append(
-      el('h3',{className:'aegis-title',innerText:'Aegis – Grepolis Remaster'}),
-      el('p',{innerText:'Motywy, nowe UI, animacje. Wybierz styl, a grafiki i kolory zmienią się automatycznie.'}),
-      el('div',{className:'aegis-actions'},
-        [el('button',{className:'aegis-btn',innerText:'Classic',onclick:()=>{localStorage.setItem(KEY,'classic');location.reload();}}),
-         el('button',{className:'aegis-btn',innerText:'Pirate', onclick:()=>{localStorage.setItem(KEY,'pirate'); location.reload();}}),
-         el('button',{className:'aegis-btn',innerText:'Emerald',onclick:()=>{localStorage.setItem(KEY,'emerald');location.reload();}}),
-         el('button',{className:'aegis-btn',innerText:'Dark',   onclick:()=>{localStorage.setItem(KEY,'dark');   location.reload();}})]
-      )
-    );
-    modal.append(card); document.body.appendChild(modal);
-    modal.addEventListener('click',e=>{ if(e.target===modal) modal.remove(); },{once:true});
+    if(load('welcomed')==='yes') return;
+    save('welcomed','yes');
+    const wrap = document.createElement('div');
+    wrap.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;z-index:999999';
+    wrap.innerHTML = \
+      <div style="background:#151822;border:1px solid #2b2f3a;border-radius:16px;padding:22px 24px;max-width:520px;color:#dde3ee;font-family:Segoe UI,Arial;box-shadow:0 20px 40px rgba(0,0,0,.45)">
+        <div style="font-size:18px;font-weight:700;margin-bottom:6px">Aegis — Remaster aktywny</div>
+        <div style="opacity:.85;line-height:1.55;margin-bottom:14px">
+          Witaj! Włączyliśmy <b>tryb Aegis</b> dla Grepolis. Masz panel sterowania (prawy-dół), tryb ciemny,
+          lekką mgiełkę na wodzie, nową wstążkę wersji i przełącznik motywów.
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button id="aegis-ok" style="all:unset;background:#2a2f3a;color:#e8ecf4;padding:8px 12px;border-radius:10px;cursor:pointer">OK, jedziemy!</button>
+        </div>
+      </div>\;
+    document.body.appendChild(wrap);
+    wrap.querySelector('#aegis-ok').addEventListener('click', ()=> wrap.remove());
+    fireworksOnce();
   }
 
-  applyTheme(DEF);
-  mountPanel();
-  welcome();
+  function setTheme(theme){
+    save('theme', theme);
+    document.body.classList.toggle('aegis-dark', theme==='dark' || theme==='pirate');
+    document.body.classList.toggle('aegis-water', theme==='classic' || theme==='emerald' || theme==='pirate');
+  }
+
+  function mountPanel(){
+    const panel = document.createElement('div');
+    panel.className='aegis-panel';
+    panel.innerHTML=\
+      <h3>Aegis <span class="aegis-chip">v\</span></h3>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <select id="aegis-theme">
+          <option value="classic">Classic</option>
+          <option value="emerald">Emerald</option>
+          <option value="pirate">Pirate</option>
+          <option value="dark">Dark</option>
+        </select>
+        <button id="aegis-outline">Outline</button>
+        <button id="aegis-fire">Fajerwerki</button>
+      </div>\;
+    document.body.appendChild(panel);
+    const sel = panel.querySelector('#aegis-theme');
+    sel.value = load('theme','classic');
+    sel.addEventListener('change', ()=> setTheme(sel.value));
+    panel.querySelector('#aegis-outline').addEventListener('click', ()=> document.body.classList.toggle('aegis-outline'));
+    panel.querySelector('#aegis-fire').addEventListener('click', fireworksOnce);
+  }
+
+  function mountRibbon(){
+    const el = document.createElement('div');
+    el.className='aegis-ribbon'; el.textContent='AEGIS '+VER; document.body.appendChild(el);
+  }
+
+  onReady(()=>{ mountRibbon(); mountPanel(); setTheme(load('theme','classic')); welcome(); });
 })();

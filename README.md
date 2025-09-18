@@ -1,111 +1,16 @@
-﻿# Aegis – Grepolis Remaster
+# Aegis — Grepolis Remaster (0.9.1-dev)
 
-**Wersja:** 0.8.1-dev  
-**Motywy:** Classic, Pirate Epic, Emerald, Dark.  
-**Instalacja (Tampermonkey):**  
-https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
-# Aegis – Grepolis Remaster
+**Co widać od razu po instalacji:**
+- Wstążka wersji (lewy górny róg),
+- Panel (prawy-dół): wybór motywu (Classic/Emerald/Pirate/Dark), Outline, Fajerwerki,
+- Okno powitalne + mini fajerwerki,
+- Tryb ciemny + mgiełka wodna (pure CSS — zero grafik, zero zależności).
 
-**Wersja:** 0.8.1-dev  
-**Motywy:** Classic, Pirate Epic, Emerald, Dark.  
-**Instalacja (Tampermonkey):**  
-https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
-# Aegis – Grepolis Remaster
+**Instalacja**
+1) Zainstaluj userscript userscripts/grepolis-skin-switcher.user.js w Tampermonkey,
+2) Odśwież Grepolis — elementy Aegis pojawią się automatycznie.
 
-**Wersja:** 0.8.1-dev  
-**Motywy:** Classic, Pirate Epic, Emerald, Dark.  
-**Instalacja (Tampermonkey):**  
-https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
-# Aegis – Grepolis Remaster
+**Podmiany grafik**
+- Gdy będą gotowe finalne assets, wrzuć je do ssets/... i podepniemy je pod mapping.json.
 
-**Wersja:** 0.8.1-dev  
-**Motywy:** Classic, Pirate Epic, Emerald, Dark.  
-**Instalacja (Tampermonkey):**  
-https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
-# Aegis – Grepolis Remaster
-
-**Wersja:** 0.8.1-dev  
-**Motywy:** Classic, Pirate Epic, Emerald, Dark.  
-**Instalacja (Tampermonkey):**  
-https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
-# Aegis – Grepolis Remaster
-
-**Wersja:** 0.8.1-dev  
-**Motywy:** Classic, Pirate Epic, Emerald, Dark.  
-**Instalacja (Tampermonkey):**  
-https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
-# Aegis – Grepolis Remaster
-
-**Wersja:** 0.8.1-dev  
-**Motywy:** Classic, Pirate Epic, Emerald, Dark.  
-**Instalacja (Tampermonkey):**  
-https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
-# Aegis – Grepolis Remaster
-
-**Wersja:** 0.8.1-dev  
-**Motywy:** Classic, Pirate Epic, Emerald, Dark.  
-**Instalacja (Tampermonkey):**  
-https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
-# Aegis – Grepolis Remaster
-
-**Wersja:** 0.8.1-dev  
-**Motywy:** Classic, Pirate Epic, Emerald, Dark.  
-**Instalacja (Tampermonkey):**  
-https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
-# Aegis – Grepolis Remaster
-
-**Wersja:** 0.8.1-dev  
-**Motywy:** Classic, Pirate Epic, Emerald, Dark.  
-**Instalacja (Tampermonkey):**  
-https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
-# Aegis – Grepolis Remaster
-
-**Wersja:** 0.8.1-dev  
-**Motywy:** Classic, Pirate Epic, Emerald, Dark.  
-**Instalacja (Tampermonkey):**  
-https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
-# Aegis – Grepolis Remaster
-
-**Wersja:** 0.8.1-dev  
-**Motywy:** Classic, Pirate Epic, Emerald, Dark.  
-**Instalacja (Tampermonkey):**  
-https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
-# Aegis – Grepolis Remaster
-
-**Wersja:** 0.8.1-dev  
-**Motywy:** Classic, Pirate Epic, Emerald, Dark.  
-**Instalacja (Tampermonkey):**  
-https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
-# Aegis – Grepolis Remaster
-
-Wersja: 0.8.0-dev
-
-Motywy: Classic, Pirate Epic, Emerald, Dark.
-
-Instalacja (Tampermonkey):
-https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
-
-# Aegis – Grepolis Remaster
-
-Wersja: 0.7.0-stable
-
-Cztery motywy: Classic, Pirate Epic, Emerald, Dark.
-
-Instalacja (Tampermonkey):
-https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Autor: **KID6767**

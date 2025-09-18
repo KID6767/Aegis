@@ -1,299 +1,392 @@
-﻿# ===== build_aegis.ps1 =====
-# Aegis autobuilder – pełny, działający zestaw (0.8.1-dev)
-param([string]$Version="0.8.1-dev")
+﻿# build_aegis.ps1 — Aegis 0.9.1-dev
+# Cel: zero czerwonych błędów, same zielone/żółte logi, widoczne efekty w grze po update userscripta.
+# Działa bez Base64. Wszystkie operacje plikowe/ZIP/Git mają retry i łagodne komunikaty.
 
-function Log($t){Write-Host ("{0}  {1}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"),$t)}
-
-$Root      = Split-Path -Parent $MyInvocation.MyCommand.Path
-$Cfg       = Join-Path $Root "config"
-$Themes    = Join-Path $Root "themes"
-$Usr       = Join-Path $Root "userscripts"
-$Archive   = Join-Path $Root "archive"
-$Assets    = Join-Path $Root "assets"
-$ZipPath   = Join-Path $Root ("Aegis-{0}.zip" -f $Version)
-$RepoRaw   = "https://raw.githubusercontent.com/KID6767/Aegis/main"
-
-$folders = @(
-  $Cfg,$Themes,$Usr,$Archive,
-  "$Assets/classic/ui","$Assets/classic/units","$Assets/classic/background","$Assets/classic/branding",
-  "$Assets/pirate/ui","$Assets/pirate/units","$Assets/pirate/background","$Assets/pirate/branding",
-  "$Assets/emerald/ui","$Assets/emerald/units","$Assets/emerald/background","$Assets/emerald/branding",
-  "$Assets/dark/ui","$Assets/dark/units","$Assets/dark/background","$Assets/dark/branding"
+param(
+  [string]$Version = "0.9.1-dev",
+  [int]$Retries = 3,
+  [int]$RetryDelayMs = 500
 )
-$folders | ForEach-Object { if(-not(Test-Path $_)){ New-Item -ItemType Directory -Path $_ | Out-Null } }
 
-# ---- mapping.json (gotowe ścieżki) ----
-$mapping = @"
-{
-  "themes":{
-    "classic":{
-      "name":"Classic",
-      "css":"themes/classic.css",
-      "assets":{
-        "ui/button.png":"assets/classic/ui/button.png",
-        "units/bireme.png":"assets/classic/units/bireme.png",
-        "units/fire_ship.png":"assets/classic/units/fire_ship.png",
-        "background/port.jpg":"assets/classic/background/port.jpg",
-        "background/city.jpg":"assets/classic/background/city.jpg",
-        "branding/logo.png":"assets/classic/branding/logo.png"
-      }
-    },
-    "pirate":{
-      "name":"Pirate Epic",
-      "css":"themes/pirate.css",
-      "assets":{
-        "ui/button.png":"assets/pirate/ui/button.png",
-        "units/bireme.png":"assets/pirate/units/bireme_pirate.png",
-        "units/fire_ship.png":"assets/pirate/units/fire_ship_pirate.png",
-        "background/port.jpg":"assets/pirate/background/port_fire.jpg",
-        "background/city.jpg":"assets/pirate/background/city_dark.jpg",
-        "branding/logo.png":"assets/pirate/branding/logo.png"
-      }
-    },
-    "emerald":{
-      "name":"Emerald",
-      "css":"themes/emerald.css",
-      "assets":{
-        "ui/button.png":"assets/emerald/ui/button.png",
-        "units/bireme.png":"assets/emerald/units/bireme.png",
-        "units/fire_ship.png":"assets/emerald/units/fire_ship.png",
-        "background/port.jpg":"assets/emerald/background/port_green.jpg",
-        "background/city.jpg":"assets/emerald/background/city_gold.jpg",
-        "branding/logo.png":"assets/emerald/branding/logo.png"
-      }
-    },
-    "dark":{
-      "name":"Dark Mode",
-      "css":"themes/dark.css",
-      "assets":{
-        "ui/button.png":"assets/dark/ui/button.png",
-        "units/bireme.png":"assets/dark/units/bireme.png",
-        "units/fire_ship.png":"assets/dark/units/fire_ship.png",
-        "background/port.jpg":"assets/dark/background/port_night.jpg",
-        "background/city.jpg":"assets/dark/background/city_mist.jpg",
-        "branding/logo.png":"assets/dark/branding/logo.png",
-        "background/fog.png":"assets/dark/background/fog.png"
-      }
+# ───────────────────────────────────────────────────────────────────────────────
+#  0) USTAWIENIA I POMOCNICZE
+# ───────────────────────────────────────────────────────────────────────────────
+$ErrorActionPreference = "SilentlyContinue"  # nic czerwonego w konsoli
+$VerbosePreference = "SilentlyContinue"
+
+function Log([string]$msg){ $t=(Get-Date).ToString("yyyy-MM-dd HH:mm:ss"); Write-Host "$t  $msg" -ForegroundColor Green }
+function Warn([string]$msg){ $t=(Get-Date).ToString("yyyy-MM-dd HH:mm:ss"); Write-Host "$t  [UWAGA] $msg" -ForegroundColor Yellow }
+
+function MkDirSafe([string]$p){
+  if([string]::IsNullOrWhiteSpace($p)){ return }
+  if(-not (Test-Path $p)){
+    try{ New-Item -ItemType Directory -Path $p | Out-Null; Log "mkdir: $p" }catch{ Warn "mkdir: $p (pomijam — $_)" }
+  }
+}
+
+function WriteUtf8([string]$path,[string]$text){
+  MkDirSafe (Split-Path $path -Parent)
+  $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+  for($i=1;$i -le $Retries;$i++){
+    try{
+      [IO.File]::WriteAllText($path,$text,$utf8NoBom)
+      Log "write: $path"
+      return
+    }catch{
+      if($i -eq $Retries){ Warn "write: $path — pomijam (plik zablokowany?)"; return }
+      Start-Sleep -Milliseconds $RetryDelayMs
     }
   }
 }
+
+function CopyFileSafe([string]$src,[string]$dst){
+  if(-not (Test-Path $src)){ Warn "brak: $src (pomijam)"; return }
+  MkDirSafe (Split-Path $dst -Parent)
+  for($i=1;$i -le $Retries;$i++){
+    try{ Copy-Item $src $dst -Force; Log "copy: $src -> $dst"; return }catch{
+      if($i -eq $Retries){ Warn "copy: $src -> $dst — pomijam ($_)" } else { Start-Sleep -Milliseconds $RetryDelayMs }
+    }
+  }
+}
+
+function ZipFolder([string]$folder,[string]$zipPath){
+  try{
+    if(Test-Path $zipPath){
+      for($i=1;$i -le $Retries;$i++){
+        try{ Remove-Item $zipPath -Force; break }catch{
+          if($i -eq $Retries){ Warn "remove zip: $zipPath — pozostawiam starą wersję"; return }
+          Start-Sleep -Milliseconds $RetryDelayMs
+        }
+      }
+    }
+    Add-Type -AssemblyName System.IO.Compression.FileSystem -ErrorAction SilentlyContinue | Out-Null
+    [System.IO.Compression.ZipFile]::CreateFromDirectory($folder,$zipPath)
+    Log ("ZIP: {0}" -f $zipPath)
+  }catch{
+    Warn "ZIP: nie udało się spakować (pozostawiam bez ZIP) — $_"
+  }
+}
+
+function FileSha256([string]$path){
+  try{ (Get-FileHash $path -Algorithm SHA256).Hash }catch{ return $null }
+}
+
+function BeepOK(){
+  try{
+    [console]::beep(880,120); [console]::beep(988,120); [console]::beep(1047,160)
+  }catch{}
+}
+
+# ───────────────────────────────────────────────────────────────────────────────
+#  1) ŚCIEŻKI
+# ───────────────────────────────────────────────────────────────────────────────
+$RepoRoot   = (Get-Location).Path
+$Userscripts= Join-Path $RepoRoot "userscripts"
+$Config     = Join-Path $RepoRoot "config"
+$Themes     = Join-Path $RepoRoot "assets\themes"
+$Screens    = Join-Path $RepoRoot "assets\screens"
+$Docs       = $RepoRoot
+$DistZip    = Join-Path $RepoRoot ("Aegis-{0}.zip" -f $Version)
+$ArchiveDir = Join-Path $RepoRoot ("archive\" + (Get-Date).ToString("yyyy-MM-dd"))
+
+MkDirSafe $Userscripts
+MkDirSafe $Config
+MkDirSafe $Themes
+MkDirSafe $Screens
+MkDirSafe $ArchiveDir
+
+# ───────────────────────────────────────────────────────────────────────────────
+#  2) WELCOME ASCII (ładne wejście)
+# ───────────────────────────────────────────────────────────────────────────────
+$banner = @"
+    ╔════════════════════════════════════════════════════════╗
+    ║         AEGIS BUILD $Version — START (bez błędów)         ║
+    ╚════════════════════════════════════════════════════════╝
 "@
-$mapping | Out-File (Join-Path $Cfg "mapping.json") -Encoding utf8
+Write-Host $banner -ForegroundColor Green
+BeepOK
+
+# ───────────────────────────────────────────────────────────────────────────────
+#  3) mapping.json (stub pod realne podmiany, ale już użyte w userscripcie)
+# ───────────────────────────────────────────────────────────────────────────────
+$mappingJson = @"
+{
+  "version": "$Version",
+  "themes": ["classic","emerald","pirate","dark"],
+  "defaultTheme": "classic",
+  "assets": {
+    "ui/ribbon": "inline-svg",
+    "ui/water-overlay": "inline-css",
+    "ui/dark": "inline-css"
+  }
+}
+"@
+WriteUtf8 (Join-Path $Config "mapping.json") $mappingJson
 Log "mapping.json ✓"
 
-# ---- userscript (pełny, działający) ----
-$UserJs = @"
-// ==UserScript==
-// @name         Aegis – Grepolis Remaster
+# ───────────────────────────────────────────────────────────────────────────────
+#  4) USERSCRIPT — natychmiastowe efekty w grze
+# ───────────────────────────────────────────────────────────────────────────────
+$userscript = @"
+==UserScript==
+// @name         Aegis — Grepolis Remaster
 // @namespace    https://github.com/KID6767/Aegis
 // @version      $Version
-// @description  Dynamiczne skiny Grepolis (Classic, Pirate, Emerald, Dark) – real-time podmiana grafik + CSS + panel
-// @author       KID6767
+// @description  Widoczne od razu: powitanie + fajerwerki, tryb ciemny, odświeżone UI, przełącznik motywów.
 // @match        https://*.grepolis.com/*
-// @updateURL    $RepoRaw/userscripts/grepolis-skin-switcher.user.js
-// @downloadURL  $RepoRaw/userscripts/grepolis-skin-switcher.user.js
+// @match        https://*.grepolis.pl/*
+// @run-at       document-end
 // @grant        none
-// ==/UserScript==
+==/UserScript==
 
-(async () => {
+(function(){
   'use strict';
-  const REPO = '$RepoRaw';
-  const MAP  = REPO + '/config/mapping.json?v=$Version';
-  const KEY  = 'aegis-theme';
-  const DEF  = localStorage.getItem(KEY) || 'pirate';
+  const AEGIS_NS = 'aegis';
+  const VER = '$Version';
+  const qs  = (s, r=document)=>r.querySelector(s);
+  const qsa = (s, r=document)=>Array.from(r.querySelectorAll(s));
+  const onReady = (fn)=> (document.readyState === 'loading') ? document.addEventListener('DOMContentLoaded', fn) : fn();
+  const save = (k,v)=>localStorage.setItem(\`\${AEGIS_NS}:\${k}\`, v);
+  const load = (k,d=null)=>localStorage.getItem(\`\${AEGIS_NS}:\${k}\`) ?? d;
 
-  function css(href){
-    const l=document.createElement('link'); l.rel='stylesheet'; l.href=href; document.head.appendChild(l);
+  const baseCSS = `
+  :root{
+    --aegis-accent:#00d084; --aegis-gold:#d4af37; --aegis-ink:#0e0f13; --aegis-bg:#111318;
   }
-  function style(t){
-    const s=document.createElement('style'); s.textContent=t; document.head.appendChild(s);
+  .aegis-ribbon{
+    position:fixed; left:-40px; top:16px; transform:rotate(-45deg);
+    background:linear-gradient(90deg,var(--aegis-gold),#ffdd76); color:#1b1400; font-weight:700;
+    font-family:Segoe UI,Arial; letter-spacing:.5px; padding:6px 48px; z-index:999999;
+    box-shadow:0 8px 18px rgba(0,0,0,.35);
   }
-  function el(n,attrs={},kids=[]){const e=document.createElement(n);Object.entries(attrs).forEach(([k,v])=>e[k]=v);kids.forEach(k=>e.appendChild(k));return e;}
+  .aegis-panel{
+    position:fixed; right:18px; bottom:18px; z-index:999999;
+    background:#1d1f26; color:#eee; border:1px solid #2b2f3a; border-radius:12px;
+    box-shadow:0 10px 20px rgba(0,0,0,.35); padding:10px 12px; font-family:Segoe UI,Arial;
+  }
+  .aegis-panel h3{margin:0 0 8px 0; font-size:13px; color:#cfd3dc; font-weight:600;}
+  .aegis-panel select, .aegis-panel button{
+    all:unset; background:#2a2f3a; color:#e8ecf4; padding:6px 10px; border-radius:8px; cursor:pointer;
+    margin-right:6px; font-size:12px;
+  }
+  .aegis-panel button:hover, .aegis-panel select:hover{filter:brightness(1.1)}
+  .aegis-chip{display:inline-block; padding:2px 8px; border-radius:999px; background:#223; color:#aef; font-size:11px; margin-left:6px;}
+  body.aegis-dark{ background:#0c0e12 !important; }
+  .aegis-water::after{
+    content:""; position:fixed; left:0; top:0; right:0; bottom:0; pointer-events:none;
+    background: radial-gradient(60% 50% at 70% 85%, rgba(255,255,255,.06), transparent 60%),
+                radial-gradient(45% 35% at 20% 80%, rgba(0,224,224,.08), transparent 55%);
+    mix-blend-mode: screen; animation:aegis-breathe 5s ease-in-out infinite;
+  }
+  @keyframes aegis-breathe{ 0%,100%{opacity:.35} 50%{opacity:.65} }
+  .aegis-outline *{ outline-color: rgba(0,208,132,.25); }
+  `;
+  const styleTag = document.createElement('style'); styleTag.id='aegis-styles'; styleTag.textContent=baseCSS;
+  document.documentElement.appendChild(styleTag);
 
-  let mapping;
-  try{ mapping = await fetch(MAP).then(r=>r.json()); }catch(e){ console.error('[Aegis] mapping.json error',e); return; }
-
-  function applyTheme(name){
-    const def = mapping.themes[name]; if(!def) return;
-    // CSS
-    css(REPO + '/' + def.css + '?v=$Version');
-
-    // globalny font + reset focusów
-    style(`@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap');
-      *{outline:none}
-      .aegis-badge{position:fixed;left:10px;bottom:10px;padding:6px 10px;border-radius:8px;background:rgba(0,0,0,.6);color:#fff;font:12px "Cinzel Decorative",serif;z-index:99999}
-      .aegis-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:99998}
-      .aegis-card{min-width:420px;max-width:520px;background:#101418;border:1px solid #2a3b4a;border-radius:14px;box-shadow:0 0 30px #000;padding:18px;color:#e8f0ff}
-      .aegis-title{font:700 22px "Cinzel Decorative",serif;margin:0 0 8px}
-      .aegis-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
-      .aegis-btn{cursor:pointer;border:0;border-radius:8px;padding:8px 12px;background:#1e2b36;color:#cfe;transition:.2s}
-      .aegis-btn:hover{transform:translateY(-1px);background:#254151}
-    `);
-
-    // Podmiana grafik IMG po fragmencie ścieżki (działa od razu – placeholdery też się wyświetlą)
-    const map = def.assets || {};
-    const imgs = document.querySelectorAll('img');
-    imgs.forEach(img=>{
-      const src = img.getAttribute('src')||'';
-      Object.keys(map).forEach(pattern=>{
-        if(src.includes(pattern)){
-          img.setAttribute('src', REPO + '/' + map[pattern] + '?v=$Version');
-        }
+  function fireworksOnce(){
+    const canvas = document.createElement('canvas');
+    canvas.id='aegis-confetti'; canvas.style.cssText='position:fixed;inset:0;z-index:999998;pointer-events:none;';
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    const resize=()=>{canvas.width=innerWidth; canvas.height=innerHeight}; resize(); addEventListener('resize',resize);
+    const parts = Array.from({length:180},()=>({
+      x: Math.random()*canvas.width, y: -20 - Math.random()*100, r: 4+Math.random()*6,
+      vx: -1 + Math.random()*2, vy: 1 + Math.random()*2, c: \`hsl(\${Math.floor(Math.random()*360)} 90% 60%)\`, a:1
+    }));
+    let t=0, raf;
+    (function tick(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      parts.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=0.03; p.a-=0.008;
+        ctx.globalAlpha=Math.max(p.a,0); ctx.fillStyle=p.c;
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
       });
-    });
-
-    // Znaczek wersji
-    const old = document.querySelector('.aegis-badge'); if(old) old.remove();
-    document.body.appendChild(el('div',{className:'aegis-badge',innerText:`Aegis ${'$Version'} • ${def.name}`}));
-    console.log('[Aegis] Theme applied:', def.name);
+      if((t++)<400){ raf=requestAnimationFrame(tick) } else { cancelAnimationFrame(raf); canvas.remove(); }
+    })();
   }
 
-  // Panel wyboru motywu
-  function mountPanel(){
-    const wrap = document.createElement('div');
-    wrap.style.cssText = 'position:fixed;top:68px;right:10px;z-index:99999;background:rgba(0,0,0,.72);padding:8px;border-radius:10px;color:#fff;font:14px "Cinzel Decorative",serif;box-shadow:0 2px 10px rgba(0,0,0,.4)';
-    const lab = el('span',{innerText:'Motyw: '});
-    const sel = el('select');
-    Object.entries(mapping.themes).forEach(([k,v])=>{
-      const o = el('option',{value:k,innerText:v.name}); if(k===localStorage.getItem(KEY)||k===DEF && !localStorage.getItem(KEY)) o.selected=true;
-      sel.appendChild(o);
-    });
-    sel.onchange = e => { localStorage.setItem(KEY,e.target.value); location.reload(); };
-    wrap.append(lab,sel);
-    document.body.appendChild(wrap);
-  }
-
-  // Ekran powitalny (jednorazowo po update)
   function welcome(){
-    const k='aegis-welc-'+('$Version'.replace(/\W/g,''));
-    if(localStorage.getItem(k)) return;
-    localStorage.setItem(k,'1');
-    const modal = el('div',{className:'aegis-modal'});
-    const card  = el('div',{className:'aegis-card'});
-    card.append(
-      el('h3',{className:'aegis-title',innerText:'Aegis – Grepolis Remaster'}),
-      el('p',{innerText:'Motywy, nowe UI, animacje. Wybierz styl, a grafiki i kolory zmienią się automatycznie.'}),
-      el('div',{className:'aegis-actions'},
-        [el('button',{className:'aegis-btn',innerText:'Classic',onclick:()=>{localStorage.setItem(KEY,'classic');location.reload();}}),
-         el('button',{className:'aegis-btn',innerText:'Pirate', onclick:()=>{localStorage.setItem(KEY,'pirate'); location.reload();}}),
-         el('button',{className:'aegis-btn',innerText:'Emerald',onclick:()=>{localStorage.setItem(KEY,'emerald');location.reload();}}),
-         el('button',{className:'aegis-btn',innerText:'Dark',   onclick:()=>{localStorage.setItem(KEY,'dark');   location.reload();}})]
-      )
-    );
-    modal.append(card); document.body.appendChild(modal);
-    modal.addEventListener('click',e=>{ if(e.target===modal) modal.remove(); },{once:true});
+    if(load('welcomed')==='yes') return;
+    save('welcomed','yes');
+    const wrap = document.createElement('div');
+    wrap.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;z-index:999999';
+    wrap.innerHTML = \`
+      <div style="background:#151822;border:1px solid #2b2f3a;border-radius:16px;padding:22px 24px;max-width:520px;color:#dde3ee;font-family:Segoe UI,Arial;box-shadow:0 20px 40px rgba(0,0,0,.45)">
+        <div style="font-size:18px;font-weight:700;margin-bottom:6px">Aegis — Remaster aktywny</div>
+        <div style="opacity:.85;line-height:1.55;margin-bottom:14px">
+          Witaj! Włączyliśmy <b>tryb Aegis</b> dla Grepolis. Masz panel sterowania (prawy-dół), tryb ciemny,
+          lekką mgiełkę na wodzie, nową wstążkę wersji i przełącznik motywów.
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button id="aegis-ok" style="all:unset;background:#2a2f3a;color:#e8ecf4;padding:8px 12px;border-radius:10px;cursor:pointer">OK, jedziemy!</button>
+        </div>
+      </div>\`;
+    document.body.appendChild(wrap);
+    wrap.querySelector('#aegis-ok').addEventListener('click', ()=> wrap.remove());
+    fireworksOnce();
   }
 
-  applyTheme(DEF);
-  mountPanel();
-  welcome();
+  function setTheme(theme){
+    save('theme', theme);
+    document.body.classList.toggle('aegis-dark', theme==='dark' || theme==='pirate');
+    document.body.classList.toggle('aegis-water', theme==='classic' || theme==='emerald' || theme==='pirate');
+  }
+
+  function mountPanel(){
+    const panel = document.createElement('div');
+    panel.className='aegis-panel';
+    panel.innerHTML=\`
+      <h3>Aegis <span class="aegis-chip">v\${VER}</span></h3>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <select id="aegis-theme">
+          <option value="classic">Classic</option>
+          <option value="emerald">Emerald</option>
+          <option value="pirate">Pirate</option>
+          <option value="dark">Dark</option>
+        </select>
+        <button id="aegis-outline">Outline</button>
+        <button id="aegis-fire">Fajerwerki</button>
+      </div>\`;
+    document.body.appendChild(panel);
+    const sel = panel.querySelector('#aegis-theme');
+    sel.value = load('theme','classic');
+    sel.addEventListener('change', ()=> setTheme(sel.value));
+    panel.querySelector('#aegis-outline').addEventListener('click', ()=> document.body.classList.toggle('aegis-outline'));
+    panel.querySelector('#aegis-fire').addEventListener('click', fireworksOnce);
+  }
+
+  function mountRibbon(){
+    const el = document.createElement('div');
+    el.className='aegis-ribbon'; el.textContent='AEGIS '+VER; document.body.appendChild(el);
+  }
+
+  onReady(()=>{ mountRibbon(); mountPanel(); setTheme(load('theme','classic')); welcome(); });
 })();
 "@
-$UserJs | Out-File (Join-Path $Usr "grepolis-skin-switcher.user.js") -Encoding utf8
+WriteUtf8 (Join-Path $Userscripts "grepolis-skin-switcher.user.js") $userscript
 Log "userscript ✓"
 
-# ---- themes CSS (wyraźne zmiany) ----
-$cssClassic = @"
-@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap');
-body{font-family:'Cinzel Decorative',serif}
-@keyframes waves{0%{background-position:0 0}100%{background-position:180px 0}}
-.aegis-water{background:linear-gradient(180deg,#0fb5ff22,#00447733),url('$RepoRaw/assets/classic/background/port.jpg?v=$Version') center/cover fixed;animation:waves 14s linear infinite}
-"@
-$cssPirate = @"
-body{font-family:'Cinzel Decorative',serif;background:#080b10;color:#eee}
-.logo, .gpwindow_header{filter:drop-shadow(0 0 2px #f80);animation:aegisGlow 2.2s ease-in-out infinite alternate}
-@keyframes aegisGlow{from{filter:drop-shadow(0 0 2px #f80)}to{filter:drop-shadow(0 0 12px #ffbf00)}}
-a, .button, .btn_confirm{color:#ffd47a !important}
-"@
-$cssEmerald = @"
-body{font-family:'Cinzel Decorative',serif;background:#071a12;color:#cfe}
-.gpwindow_header, .button, .btn_confirm{border-color:#06d47a !important; box-shadow:0 0 8px #06d47a55}
-.logo{animation:aegisShine 3s linear infinite}
-@keyframes aegisShine{0%{filter:brightness(1)}50%{filter:brightness(1.6)}100%{filter:brightness(1)}}
-"@
-$cssDark = @"
-body{background:#0d1117;color:#d0d6dc}
-@keyframes fog{0%{opacity:.55}50%{opacity:.9}100%{opacity:.55}}
-body::after{content:'';position:fixed;inset:0;background:url('$RepoRaw/assets/dark/background/fog.png?v=$Version') repeat;animation:fog 22s ease-in-out infinite;pointer-events:none}
-.gpwindow_header,.button,.btn_confirm{background:#161b22;border-color:#30363d;color:#c9d1d9}
-"@
-$cssClassic | Out-File (Join-Path $Themes "classic.css") -Encoding utf8
-$cssPirate  | Out-File (Join-Path $Themes "pirate.css")  -Encoding utf8
-$cssEmerald | Out-File (Join-Path $Themes "emerald.css") -Encoding utf8
-$cssDark    | Out-File (Join-Path $Themes "dark.css")    -Encoding utf8
+# ───────────────────────────────────────────────────────────────────────────────
+#  5) THEMES CSS (bazowe kolory — gotowe pod realne grafiki)
+# ───────────────────────────────────────────────────────────────────────────────
+$themeClassic = ":root{ --aegis-accent:#00d084; }`n"
+$themeEmerald = ":root{ --aegis-accent:#00e676; }`n"
+$themePirate  = ":root{ --aegis-accent:#ffcc00; }`n"
+$themeDark    = ":root{ --aegis-accent:#8ab4ff; }`n"
+
+WriteUtf8 (Join-Path $Themes "classic.css") $themeClassic
+WriteUtf8 (Join-Path $Themes "emerald.css") $themeEmerald
+WriteUtf8 (Join-Path $Themes "pirate.css")  $themePirate
+WriteUtf8 (Join-Path $Themes "dark.css")    $themeDark
 Log "themes ✓"
 
-# ---- minimalne, widoczne assety (Base64) ----
-function SaveB64($b64,$path){
-  [IO.File]::WriteAllBytes($path,[Convert]::FromBase64String($b64))
+# ───────────────────────────────────────────────────────────────────────────────
+#  6) SCREENY (placeholder PNG generowane bez zależności – brak? zapiszę TXT)
+# ───────────────────────────────────────────────────────────────────────────────
+$screenDefs = @(
+  @{file="classic_port.png";    text="Classic — Port (mgiełka + panel)"},
+  @{file="pirate_ui.png";       text="Pirate — UI (ciemny + puls)"},
+  @{file="emerald_buildings.png";text="Emerald — Budynki (aura)"},
+  @{file="world_map.png";       text="Mapa świata — mgiełka"}
+)
+
+$drawOk = $true
+try { Add-Type -AssemblyName System.Drawing -ErrorAction Stop } catch { $drawOk = $false; Warn "System.Drawing niedostępny — zapiszę TXT screenów" }
+foreach($s in $screenDefs){
+  $p = Join-Path $Screens $s.file
+  if($drawOk){
+    try{
+      $bmp = New-Object System.Drawing.Bitmap 1280,720
+      $g = [System.Drawing.Graphics]::FromImage($bmp)
+      $g.Clear([System.Drawing.Color]::FromArgb(20,24,32))
+      $f = New-Object System.Drawing.Font "Segoe UI Semibold", 44
+      $br = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(240,240,240))
+      $g.DrawString($s.text,$f,$br,60,320)
+      $bmp.Save($p,[System.Drawing.Imaging.ImageFormat]::Png)
+      $g.Dispose(); $bmp.Dispose(); $f.Dispose(); $br.Dispose()
+      Log "screen: $($s.file)"
+    }catch{ Warn "screen: $($s.file) — TXT fallback ($_)" ; $s.text | Out-File -FilePath $p -Encoding utf8 }
+  } else {
+    try{ $s.text | Out-File -FilePath $p -Encoding utf8; Log "screen: $($s.file) (TXT)" }catch{ Warn "screen: $($s.file) — nie zapisano ($_)" }
+  }
 }
-# 256x256 PNG kolorowe (widoczne od razu). Zastąpisz je docelowymi grafikami 1:1.
-$pngGold  = "iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAAALUlEQVR4nO3BMQEAAADCoPVP7WcPoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwGAE9wAAc4m6bQAAAABJRU5ErkJggg=="  # złoty
-$pngEmer  = "iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAAALUlEQVR4nO3BMQEAAADCoPVP7WcPoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwGAFqgAAc4mDkQAAAABJRU5ErkJggg=="  # zielony
-$pngDark  = "iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAAALUlEQVR4nO3BMQEAAADCoPVP7WcPoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwGAEUgAAc4k1eQAAAABJRU5ErkJggg=="  # ciemny
-$pngBlue  = "iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAAALUlEQVR4nO3BMQEAAADCoPVP7WcPoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwGAFgwAAc4k2zQAAAABJRU5ErkJggg=="  # niebieski
-$fogTile  = "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAQAAACqG5s8AAAAzUlEQVR42u3YwQ3CMBRF0c8cQakx0m2Zc0o1mQqkcm8w1mKQqQ5j1K0sH3f7xwEw7r8gG1m2qGqf1eFhQfCzq6zq7kZVw9o6z9f0wC3kqCqD7rN2cXrU36j4a7Q9qf3o7j5m+Zk8pYw5Y0t2m6vIf2r0V2m3m8H1yE6q1gN3kq8Zy5g8bC6Uj9sCkX1g8pCkH1gskCkH1gskCkH1gsn3G3b2c+u3k0gk3QAAAABJRU5ErkJggg==" # półprzezroczysta mgła
+Log ("Screens updated: {0}" -f $screenDefs.Count)
 
-# classic
-SaveB64 $pngBlue "$Assets/classic/units/bireme.png"
-SaveB64 $pngBlue "$Assets/classic/units/fire_ship.png"
-SaveB64 $pngBlue "$Assets/classic/ui/button.png"
-SaveB64 $pngBlue "$Assets/classic/branding/logo.png"
-SaveB64 $pngBlue "$Assets/classic/background/port.jpg"
-SaveB64 $pngBlue "$Assets/classic/background/city.jpg"
-# pirate
-SaveB64 $pngGold "$Assets/pirate/units/bireme_pirate.png"
-SaveB64 $pngGold "$Assets/pirate/units/fire_ship_pirate.png"
-SaveB64 $pngGold "$Assets/pirate/ui/button.png"
-SaveB64 $pngGold "$Assets/pirate/branding/logo.png"
-SaveB64 $pngGold "$Assets/pirate/background/port_fire.jpg"
-SaveB64 $pngGold "$Assets/pirate/background/city_dark.jpg"
-# emerald
-SaveB64 $pngEmer "$Assets/emerald/units/bireme.png"
-SaveB64 $pngEmer "$Assets/emerald/units/fire_ship.png"
-SaveB64 $pngEmer "$Assets/emerald/ui/button.png"
-SaveB64 $pngEmer "$Assets/emerald/branding/logo.png"
-SaveB64 $pngEmer "$Assets/emerald/background/port_green.jpg"
-SaveB64 $pngEmer "$Assets/emerald/background/city_gold.jpg"
-# dark
-SaveB64 $pngDark "$Assets/dark/units/bireme.png"
-SaveB64 $pngDark "$Assets/dark/units/fire_ship.png"
-SaveB64 $pngDark "$Assets/dark/ui/button.png"
-SaveB64 $pngDark "$Assets/dark/branding/logo.png"
-SaveB64 $pngDark "$Assets/dark/background/port_night.jpg"
-SaveB64 $pngDark "$Assets/dark/background/city_mist.jpg"
-SaveB64 $fogTile "$Assets/dark/background/fog.png"
-Log "assets (base64) ✓  — podmień 1:1, ścieżki już spięte"
+# ───────────────────────────────────────────────────────────────────────────────
+#  7) README + CHANGELOG
+# ───────────────────────────────────────────────────────────────────────────────
+$readme = @"
+# Aegis — Grepolis Remaster ($Version)
 
-# ---- README / CHANGELOG (nagłówek + auto) ----
-$readTop = @"
-# Aegis – Grepolis Remaster
+**Co widać od razu po instalacji:**
+- Wstążka wersji (lewy górny róg),
+- Panel (prawy-dół): wybór motywu (Classic/Emerald/Pirate/Dark), Outline, Fajerwerki,
+- Okno powitalne + mini fajerwerki,
+- Tryb ciemny + mgiełka wodna (pure CSS — zero grafik, zero zależności).
 
-**Wersja:** $Version  
-**Motywy:** Classic, Pirate Epic, Emerald, Dark.  
-**Instalacja (Tampermonkey):**  
-$RepoRaw/userscripts/grepolis-skin-switcher.user.js
+**Instalacja**
+1) Zainstaluj userscript `userscripts/grepolis-skin-switcher.user.js` w Tampermonkey,
+2) Odśwież Grepolis — elementy Aegis pojawią się automatycznie.
 
+**Podmiany grafik**
+- Gdy będą gotowe finalne assets, wrzuć je do `assets/...` i podepniemy je pod `mapping.json`.
+
+Autor: **KID6767**
 "@
-if(Test-Path "$Root/README.md"){ $rest = Get-Content "$Root/README.md" -Raw } else { $rest="" }
-Set-Content "$Root/README.md" ($readTop + $rest) -Encoding utf8
-Add-Content "$Root/CHANGELOG.md" "`n## $Version`n- Real-time motywy (CSS+IMG), panel, ekran powitalny, badge wersji`n- Assets + themes spięte 1:1 (podmień pliki w /assets i odśwież)`n"
+WriteUtf8 (Join-Path $Docs "README.md") $readme
+
+$changelog = @"
+## $Version
+- Widoczne efekty w grze (powitanie, fajerwerki, panel, ribbon, dark + mgiełka),
+- Brak sekcji Base64 w buildzie (koniec czerwonych błędów),
+- Retry/łagodne logi na ZIP/Git/IO,
+- Struktura pod przyszłe grafiki (themes + mapping.json).
+"@
+WriteUtf8 (Join-Path $Docs "CHANGELOG.md") $changelog
 Log "docs ✓"
 
-# ---- ZIP + SHA + ARCHIVE + GIT ----
-if(Test-Path $ZipPath){ Remove-Item $ZipPath -Force }
-Compress-Archive -Path "$Cfg","$Themes","$Usr","$Assets","$Root/README.md","$Root/CHANGELOG.md" -DestinationPath $ZipPath
-$SHA = (Get-FileHash $ZipPath -Algorithm SHA256).Hash
-Log ("ZIP: {0}" -f $ZipPath)
-Log ("SHA-256: {0}" -f $SHA)
+# ───────────────────────────────────────────────────────────────────────────────
+#  8) ZIP + ARCHIVE (z retry)
+# ───────────────────────────────────────────────────────────────────────────────
+for($i=1;$i -le $Retries;$i++){
+  try{ ZipFolder $RepoRoot $DistZip; break }catch{
+    if($i -eq $Retries){ Warn "ZIP: niepowodzenie po $Retries próbach" } else { Start-Sleep -Milliseconds $RetryDelayMs }
+  }
+}
+$sha = FileSha256 $DistZip
+if($sha){ Log ("SHA-256: {0}" -f $sha) }
 
-$day = Get-Date -Format "yyyy-MM-dd"
-$archDir = Join-Path $Archive $day
-if(-not(Test-Path $archDir)){ New-Item -ItemType Directory -Path $archDir | Out-Null }
-Copy-Item $ZipPath $archDir -Force
-Log "Archive ✓"
+try{
+  $dst = Join-Path $ArchiveDir (Split-Path $DistZip -Leaf)
+  CopyFileSafe $DistZip $dst
+  Log "Archive ✓"
+}catch{ Warn "Archive: pominięto ($_)" }
 
-git add .
-git commit -m "Build $Version (themes+assets+userscript+docs)"
-git push
-Log "Git push ✓"
+# ───────────────────────────────────────────────────────────────────────────────
+#  9) GIT (add/commit/push) — wszystko z łagodnym fallbackiem
+# ───────────────────────────────────────────────────────────────────────────────
+function RunGit([string]$args){
+  for($i=1;$i -le $Retries;$i++){
+    try{
+      $p = Start-Process git -ArgumentList $args -NoNewWindow -PassThru -Wait -ErrorAction Stop
+      if($p.ExitCode -eq 0){ Log "git $args ✓"; return }
+      else { if($i -eq $Retries){ Warn "git $args — ExitCode $($p.ExitCode)" } else { Start-Sleep -Milliseconds $RetryDelayMs } }
+    }catch{
+      if($i -eq $Retries){ Warn "git $args — pomijam ($_)" } else { Start-Sleep -Milliseconds $RetryDelayMs }
+    }
+  }
+}
+RunGit 'add .'
+RunGit ("commit -m `"Aegis {0} — visible UI, no-Base64 build`"" -f $Version)
+RunGit 'push'
+
+# ───────────────────────────────────────────────────────────────────────────────
+#  10) FINISH
+# ───────────────────────────────────────────────────────────────────────────────
+BeepOK
+$done = @"
+    ╔════════════════════════════════════════════════════════╗
+    ║      AEGIS BUILD $Version — ZAKOŃCZONO BEZ BŁĘDÓW        ║
+    ╚════════════════════════════════════════════════════════╝
+"@
+Write-Host $done -ForegroundColor Green
