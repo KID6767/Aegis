@@ -1,95 +1,87 @@
 ﻿// ==UserScript==
-// @name         Aegis – Grepolis Skin Switcher
+// @name         Aegis – Grepolis Remaster
 // @namespace    https://github.com/KID6767/Aegis
-// @version      0.6.5-stable
-// @description  Remaster Grepolis UI – dynamic skin/theme switcher (Classic, Pirate-Epic, Emerald, Dark Mode, Animations)
-// @author       KID6767 & ChatGPT
+// @version      0.8.0-dev
+// @description  Dynamiczne skiny Grepolis: Classic, Pirate, Emerald, Dark (+ niespodzianki)
+// @author       KID6767
 // @match        https://*.grepolis.com/*
-// @icon         https://raw.githubusercontent.com/KID6767/Aegis/main/assets/branding/logo.png
 // @updateURL    https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
 // @downloadURL  https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-skin-switcher.user.js
-// @grant        GM_xmlhttpRequest
-// @grant        GM_addStyle
-// @connect      raw.githubusercontent.com
+// @grant        none
 // ==/UserScript==
 
-(function() {
+(async function() {
     'use strict';
+    const repo = "https://raw.githubusercontent.com/KID6767/Aegis/main";
+    const mappingUrl = ${repo}/config/mapping.json;
 
-    const REPO = "https://raw.githubusercontent.com/KID6767/Aegis/main";
-    const MAPPING = `${REPO}/config/mapping.json`;
-
-    let assets = {};
-    let currentTheme = "classic"; // domyślnie Classic
-
-    // 🔄 Pobierz mapping.json
-    function loadMapping() {
-        GM_xmlhttpRequest({
-            method: "GET",
-            url: MAPPING,
-            onload: function(response) {
-                try {
-                    assets = JSON.parse(response.responseText);
-                    console.log("[Aegis] Mapping loaded:", assets);
-                    applyTheme(currentTheme);
-                } catch (e) {
-                    console.error("[Aegis] Mapping parse error:", e);
-                }
-            },
-            onerror: function(e) {
-                console.error("[Aegis] Failed to load mapping.json", e);
-            }
-        });
+    let mapping = {};
+    try {
+        mapping = await fetch(mappingUrl).then(r => r.json());
+    } catch (e) {
+        console.error("[Aegis] Cannot load mapping.json", e);
+        return;
     }
 
-    // 🎨 Zastosuj motyw
+    const saved = localStorage.getItem("aegis-theme") || "classic";
+    applyTheme(saved);
+
     function applyTheme(theme) {
-        if (!assets[theme]) {
-            console.warn(`[Aegis] Theme '${theme}' not found in mapping.json`);
-            return;
-        }
-        currentTheme = theme;
+        if(!mapping.themes[theme]) return;
+        const def = mapping.themes[theme];
 
-        const mapping = assets[theme];
-        for (const [selector, url] of Object.entries(mapping)) {
-            const elements = document.querySelectorAll(selector);
-            elements.forEach(el => {
-                if (el.tagName === "IMG") {
-                    el.src = url;
-                } else {
-                    el.style.backgroundImage = `url("${url}")`;
-                }
-            });
+        if(def.css){
+            const link = document.createElement("link");
+            link.rel = "stylesheet";
+            link.href = ${repo}/;
+            document.head.appendChild(link);
         }
 
-        console.log(`[Aegis] Theme applied: ${theme}`);
+        for(const [key, val] of Object.entries(def.assets)) {
+            const els = document.querySelectorAll(img[src*='']);
+            els.forEach(el => el.src = ${repo}/);
+        }
+
+        console.log("[Aegis] Theme applied:", def.name);
     }
 
-    // 🛠 Panel wyboru motywu
-    function injectThemeSwitcher() {
-        const container = document.createElement("div");
-        container.id = "aegis-theme-switcher";
-        container.style.position = "fixed";
-        container.style.top = "100px";
-        container.style.right = "10px";
-        container.style.background = "rgba(0,0,0,0.7)";
-        container.style.padding = "10px";
-        container.style.borderRadius = "8px";
-        container.style.color = "white";
-        container.style.zIndex = 9999;
+    // UI panel
+    const panel = document.createElement("div");
+    panel.style.position="fixed";
+    panel.style.top="60px";
+    panel.style.right="10px";
+    panel.style.background="rgba(0,0,0,0.75)";
+    panel.style.color="#fff";
+    panel.style.padding="8px";
+    panel.style.borderRadius="10px";
+    panel.style.zIndex=9999;
+    panel.style.font="14px 'Cinzel Decorative', serif";
+    panel.style.boxShadow="0 0 10px rgba(0,0,0,0.5)";
 
-        ["classic", "pirate", "emerald", "dark"].forEach(theme => {
-            const btn = document.createElement("button");
-            btn.innerText = theme;
-            btn.style.margin = "3px";
-            btn.onclick = () => applyTheme(theme);
-            container.appendChild(btn);
-        });
+    const label = document.createElement("label");
+    label.textContent="Motyw: ";
+    panel.appendChild(label);
 
-        document.body.appendChild(container);
+    const select = document.createElement("select");
+    for(const [k,v] of Object.entries(mapping.themes)){
+        const opt = document.createElement("option");
+        opt.value = k;
+        opt.textContent = v.name;
+        if(k===saved) opt.selected = true;
+        select.appendChild(opt);
     }
+    select.addEventListener("change", e=>{
+        localStorage.setItem("aegis-theme", e.target.value);
+        location.reload();
+    });
+    panel.appendChild(select);
 
-    // 🚀 Start
-    loadMapping();
-    setTimeout(injectThemeSwitcher, 2000);
+    const ver = document.createElement("div");
+    ver.textContent = "Aegis " + "0.8.0-dev";
+    ver.style.fontSize="11px";
+    ver.style.marginTop="6px";
+    ver.style.opacity="0.8";
+    panel.appendChild(ver);
+
+    document.body.appendChild(panel);
 })();

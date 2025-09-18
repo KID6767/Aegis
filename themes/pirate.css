@@ -1,0 +1,3 @@
+﻿body { font-family:'Cinzel Decorative',serif; background:#0a0a0a; color:#eee; }
+.logo { animation:glow 2s ease-in-out infinite alternate; }
+@keyframes glow { from {filter:drop-shadow(0 0 2px red);} to {filter:drop-shadow(0 0 10px orange);} }

@@ -1,0 +1,5 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap');
+body { font-family:'Cinzel Decorative',serif; }
+#ui { background:url('../assets/classic/background/port.jpg') no-repeat center center fixed; background-size:cover; }
+@keyframes waves {0%{background-position:0 0;}100%{background-position:100px 0;}}
+#ui { animation:waves 12s linear infinite; }
