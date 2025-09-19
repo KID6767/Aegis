@@ -1,10 +1,1 @@
-:root{ --aeg-gold:#d4af37; --aeg-bg:#0b0b0b; --aeg-ink:#101010; --aeg-fg:#eee; }
-body, .gpwindow_content, .game_inner_box, .ui_box{ background:#0b0b0b !important; color:#eee !important; }
-.game_header, .ui-dialog .ui-dialog-titlebar{
-  background:#101010 !important; color:#d4af37 !important; border-color:#d4af37 !important;
-}
-.button, .btn, .ui-button{
-  background:#151515 !important; color:#d4af37 !important; border:1px solid #d4af37 !important;
-  box-shadow:0 8px 26px rgba(0,0,0,.6);
-}
-a{ color:#e5c66a !important; }
+:root{--aeg-gold:#d4af37;--aeg-bg:#0b0b0b;--aeg-fg:#eee}
