@@ -1,52 +1,6 @@
-@font-face{
-  font-family:'AegisUI';
-  src:local('Segoe UI'), local('Arial');
-  font-weight:400; font-style:normal;
+﻿:root {
+  --aegis-green:#0a2e22;
+  --aegis-gold:#d4af37;
+  --aegis-fg:#f3f3f3;
 }
-:root{
-  --aegis-accent:#6ee7b7;
-  --aegis-bg:#10141b;
-  --aegis-card:#161b24;
-  --aegis-text:#e6e7eb;
-  --aegis-gloss:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,0));
-}
-#aegis-badge{
-  position:fixed; right:12px; top:12px; z-index:99999;
-  display:flex; align-items:center; gap:8px;
-  padding:6px 10px; border-radius:10px;
-  background:rgba(0,0,0,.55); backdrop-filter: blur(6px);
-  box-shadow:0 8px 18px rgba(0,0,0,.35);
-  color:var(--aegis-text); font:12px/1 AegisUI, sans-serif;
-  border:1px solid rgba(255,255,255,.12);
-}
-#aegis-badge img{ width:20px;height:20px; border-radius:4px }
-#aegis-badge .txt{ opacity:.9 }
-#aegis-welcome{
-  position:fixed; inset:0; z-index:99998;
-  background:radial-gradient(60% 60% at 50% 40%, rgba(30,40,58,.9), rgba(10,14,20,.95));
-  display:grid; place-items:center; font-family:AegisUI, sans-serif;
-}
-.aegis-panel{
-  width:min(680px, 92vw);
-  background:var(--aegis-card);
-  color:var(--aegis-text);
-  border-radius:18px; padding:22px 22px;
-  box-shadow:0 24px 60px rgba(0,0,0,.45), inset 0 1px rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.1);
-}
-.aegis-panel .head{ display:flex; gap:16px; align-items:center; }
-.aegis-panel .head img{ width:52px;height:52px; border-radius:8px }
-.aegis-panel h1{ margin:0; font-size:22px }
-.aegis-btn{
-  appearance:none; border:0; cursor:pointer;
-  padding:10px 16px; border-radius:12px; font-weight:600;
-  background:
-    var(--aegis-gloss),
-    linear-gradient(180deg, #45d4a4, #22b36f 65%);
-  color:#0d1b16;
-  box-shadow:0 10px 22px rgba(34,179,111,.35), inset 0 1px rgba(255,255,255,.28);
-}
-.aegis-btn:hover{ transform:translateY(-1px) scale(1.01) }
-.aegis-btn:active{ transform:translateY(0) scale(.99) }
-
-body, .ui_game, #main_container{ font-family:AegisUI, sans-serif !important }body{ background:#0c1117 url('../../screenshots/classic_port.png') center/cover fixed no-repeat }
+body { color: var(--aegis-fg); }

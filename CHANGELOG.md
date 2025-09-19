@@ -1,19 +1,42 @@
-# Dziennik zmian
+﻿# Dziennik zmian
 
-## 0.9.0
-- Nowy motyw CSS (czcionka, panel, tło, przyciski z połyskiem).
-- Wersja odznaki (prawy górny róg).
-- Ekran powitalny + fajerwerki (pierwsze uruchomienie po aktualizacji).
-- 3 motywy: classic, pirate-epic, emerald (skrót Ctrl+Alt+T).
-- Zaostrzone zabezpieczenia Base64 (walidacja + padding).
+## 0.9.0 — Remaster & polish
+- Motyw: butelkowa zieleń + złoto (panel, badge, cienie).
+- Ekran powitalny + fajerwerki przy nowej wersji.
+- Animowany dym (delikatna warstwa na spodzie).
+- Porządki w strukturze repo i assets.
 
 ## 0.8.1
-- Naprawione ścieżki assets.
-- Obsługa błędów FromBase64String (try/catch + fallback).
-- README/CHANGELOG generowane w buildzie.
-- SHA-256 dla ZIP.
+- Naprawa placeholderów Base64 i odporne buildy (try/catch).
+- Uporządkowane pliki userscript + themes.
 
 ## 0.8.0
-- Pierwszy stabilny build buildera.
-- Userscript z loaderem CSS.
-- Mapa zasobów (wstępna).
+- Zrzuty ekranu – automatyczne generowanie fallbacków.
+- Synchronizacja wersji w userscripcie z buildem.
+
+## 0.7.0
+- Wydzielenie `dist/` z paczkami ZIP.
+
+## 0.6.5
+- Automatyczna kompilacja i push z PowerShell.
+
+## 0.6.1
+- Iteracja motywu, czyszczenie nieużywanych stylów.
+
+## 0.6.0
+- Przebudowa struktury katalogów (assets/userscripts/docs).
+
+## 0.5.0
+- Pierwszy zestaw grafik i mappingów.
+
+## 0.4.0
+- Badge wersji i drobne efekty UI.
+
+## 0.3.0
+- Podłączenie motywu CSS i loadera.
+
+## 0.2.0
+- Inicjalny userscript, wstrzykiwanie zasobów.
+
+## 0.1.0
+- Start projektu.

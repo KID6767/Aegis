@@ -1,0 +1,66 @@
+﻿/* Aegis – theme: bottle green + gold */
+@font-face{
+  font-family:"Cinzel";
+  src:local("Cinzel"), local("Cinzel-Regular");
+  font-display:swap;
+}
+:root{
+  --aegis-green: #0f2e25;
+  --aegis-green-2:#12352b;
+  --aegis-gold:  #d5c36b;
+  --aegis-gold-2:#f2e9a0;
+  --aegis-shadow: rgba(0,0,0,.35);
+}
+html,body{background:#0b231c;}
+#aegis-badge{
+  position:fixed; top:10px; right:12px; z-index:9999;
+  display:flex; gap:10px; align-items:center;
+  padding:8px 12px; border-radius:12px;
+  background:linear-gradient(180deg,#11352b,#0f2e25);
+  box-shadow:0 6px 22px var(--aegis-shadow), inset 0 1px 0 #173f33;
+  color:var(--aegis-gold);
+  font-family:Cinzel,serif; font-size:14px; letter-spacing:.6px
+}
+#aegis-badge img{width:28px;height:28px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+#aegis-badge .txt{color:var(--aegis-gold-2)}
+/* welcome */
+#aegis-welcome{
+  position:fixed; inset:0; z-index:99998; display:grid; place-items:center;
+  background:radial-gradient(80% 80% at 50% 50%, rgba(15,46,37,.92), rgba(10,28,22,.96));
+  animation:fadeIn .35s ease-out
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.aegis-panel{
+  width:min(780px,92vw); padding:22px; border-radius:18px;
+  background:linear-gradient(180deg,#12352b,#0f2e25 60%);
+  border:1px solid rgba(245,227,140,.28);
+  box-shadow:0 18px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05)
+}
+.aegis-panel .head{display:flex; gap:18px; align-items:center; margin-bottom:10px}
+.aegis-panel .head img{width:72px;height:72px}
+.aegis-panel h1{margin:0; color:var(--aegis-gold-2); font:600 28px/1.2 Cinzel,serif; letter-spacing:1px}
+.aegis-panel p{margin:.35rem 0; color:#dce4cd; font:14px/1.5 system-ui,Segoe UI,Roboto}
+.aegis-btn{
+  background:linear-gradient(180deg,#f5e38c,#c9a227);
+  color:#2a2a14; font:600 14px/1.1 Cinzel,serif;
+  padding:10px 16px; border-radius:12px; border:0; cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,.35), inset 0 1px 0 #fff6c4
+}
+.aegis-btn:hover{filter:brightness(1.03)}
+/* animated smoke strip at bottom */
+#aegis-smoke{
+  position:fixed; left:0; right:0; bottom:0; height:90px; pointer-events:none; z-index:1;
+  background:
+     radial-gradient(60px 30px at 20% 80%, rgba(255,255,255,.08), transparent 70%),
+     radial-gradient(80px 40px at 60% 80%, rgba(255,255,255,.10), transparent 70%),
+     url("../branding/bg_tile.png");
+  mix-blend-mode:screen;
+  animation:smk 22s linear infinite;
+  opacity:.65
+}
+@keyframes smk{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-220px)}
+}
+/* canvas sits above smoke */
+canvas.aegis-fireworks{position:fixed; inset:0; z-index:99999; pointer-events:none}

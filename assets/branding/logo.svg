@@ -1,0 +1,10 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="280" height="80" viewBox="0 0 280 80">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0" stop-color="#C9A227"/>
+      <stop offset="1" stop-color="#F5E38C"/>
+    </linearGradient>
+  </defs>
+  <rect width="280" height="80" rx="14" fill="#0f2e25"/>
+  <text x="140" y="50" text-anchor="middle" font-family="Cinzel, serif" font-size="34" fill="url(#g)" letter-spacing="2">AEGIS</text>
+</svg>
