@@ -1,9 +1,0 @@
-2025-09-20 10:37:39  == START Install Aegis ==
-2025-09-20 10:37:39  Git: reset --hard
-2025-09-20 10:37:39  Git: pull origin main
-2025-09-20 10:37:40  ? Repo zaktualizowane
-2025-09-20 10:37:40  == Build Aegis ==
-2025-09-20 10:37:41  ZIP: C:\Users\macie\Documents\GitHub\Aegis\dist\Aegis-1.0.0.zip
-2025-09-20 10:37:41  SHA-256: 3943A80C8BDB6738E0E73022B4AD6A53C3A3289B9776A1B430B415D4704107AA
-2025-09-20 10:37:41  ? Build zakoñczony pomyœlnie
-2025-09-20 10:37:41  == END Install Aegis ==
