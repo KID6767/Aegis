@@ -1,12 +1,6 @@
 @echo off
-setlocal
-cd /d "%~dp0"
-echo == Aegis Installer (BAT) ==
-powershell -NoProfile -ExecutionPolicy Bypass -File ".\install.ps1"
-if %ERRORLEVEL% NEQ 0 (
-  echo PowerShell install.ps1 zwrocil blad %ERRORLEVEL%
-  pause
-  exit /b %ERRORLEVEL%
-)
-echo == DONE ==
+title Aegis Installer (BAT)
+color 0C
+echo == Aegis Installer ==
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0install.ps1"
 pause

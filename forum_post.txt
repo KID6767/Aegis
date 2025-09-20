@@ -1,0 +1,23 @@
+[CENTER][IMG]assets/branding/banner.png[/IMG]
+
+[B][SIZE=6]⚔️ Aegis — Grepolis Remaster 2025 ⚔️[/SIZE][/B]
+
+Nowa era Grepolis!
+
+[LIST]
+[*] Epickie motywy (Classic, Remaster, Pirate, Dark)
+[*] Panel konfiguracji (złoty kwadrat w prawym górnym rogu)
+[*] Animowany ekran powitalny z fajerwerkami
+[*] AssetMap — łatwa podmiana grafik
+[*] Inspiracja GRCTools, ale z własnym stylem
+[/LIST]
+
+[HR]
+[SIZE=5][B]Instalacja[/B][/SIZE]
+1. Zainstaluj [URL=https://www.tampermonkey.net/]Tampermonkey[/URL]
+2. Kliknij [URL=https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-aegis.user.js]Aegis 1.0.1[/URL]
+3. Odśwież Grepolis
+
+[HR]
+[SIZE=4]Licencja: MIT — darmowe i otwarte[/SIZE]
+[/CENTER]
