@@ -1,7 +1,7 @@
-# CHANGELOG
+# Changelog
 
-## 1.0.0
-- Pierwsza pełna paczka: userscript (panel, badge, smoke, 4 motywy).
-- AssetMap: logo + birema → podmiany z `assets/`.
-- Baner SVG + dwa statki (zielony/piracki).
-- Installery: BAT/PS1, ZIP + SHA256 + (opcjonalnie) git push.
+## 1.0.1
+- Panel Aegis + modal
+- 4 motywy
+- Animowany baner (SVG) + statki
+- Struktura assets/branding

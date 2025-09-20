@@ -1,26 +1,29 @@
-﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 260" width="960" height="260">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 260" width="960" height="260">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%"  stop-color="#0a2e22">
+    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0a2e22">
         <animate attributeName="stop-color" values="#0a2e22;#113c2d;#0a2e22" dur="6s" repeatCount="indefinite"/>
       </stop>
       <stop offset="100%" stop-color="#113c2d">
         <animate attributeName="stop-color" values="#113c2d;#0a2e22;#113c2d" dur="6s" repeatCount="indefinite"/>
       </stop>
     </linearGradient>
-    <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   </defs>
-  <rect width="960" height="260" rx="18" fill="url(#g)"/>
+
+  <rect width="960" height="260" rx="18" fill="url(#grad)"/>
   <g filter="url(#glow)">
-    <text x="480" y="140" text-anchor="middle" font-family="Georgia,serif" font-size="52" fill="#e7d98b" style="letter-spacing:1.5px">
-      AEGIS — Grepolis Remaster
-      <animate attributeName="fill" values="#e7d98b;#fff7bf;#e7d98b" dur="3s" repeatCount="indefinite"/>
+    <text x="480" y="135" text-anchor="middle" font-family="Georgia,serif" font-size="64" fill="#e7d98b" style="letter-spacing:2px">
+      AEGIS — Grepolis Remaster 2025
+      <animate attributeName="fill" values="#e7d98b;#fff9c4;#e7d98b" dur="3s" repeatCount="indefinite"/>
     </text>
   </g>
-  <image href="ship_pirate.svg" x="22"  y="72" width="180" height="120" opacity="0.9">
+
+  <!-- ships -->
+  <image href="ship_pirate.svg" x="24"  y="70" width="180" height="120" opacity="0.85">
     <animateTransform attributeName="transform" type="translate" values="0 0; 0 -3; 0 0" dur="4s" repeatCount="indefinite"/>
   </image>
-  <image href="ship_green.svg"  x="758" y="62" width="180" height="130" opacity="0.95">
+  <image href="ship_green.svg"  x="756" y="60" width="180" height="130" opacity="0.9">
     <animateTransform attributeName="transform" type="translate" values="0 0; 0 3; 0 0" dur="4s" repeatCount="indefinite"/>
   </image>
 </svg>
