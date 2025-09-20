@@ -1,2 +1,2 @@
 ## 1.0.0
-- Pierwsze pełne wydanie
+- Pierwsza publiczna paczka: userscript + branding + README.
