@@ -1,0 +1,5 @@
+[center][img]https://raw.githubusercontent.com/KID6767/Aegis/main/assets/branding/banner.svg[/img]
+
+[b]Aegis – Grepolis Remaster 1.0.0[/b]
+Pełny opis, changelog i linki...
+[/center]
