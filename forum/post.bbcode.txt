@@ -1,0 +1,15 @@
+[center][img]https://raw.githubusercontent.com/KID6767/Aegis/main/assets/branding/banner.svg[/img]
+
+[size=18][b]Aegis — Grepolis Remaster[/b][/size]
+Butelkowa zieleń + złoto • Panel konfiguracji • Animowany smoke • AssetMap • 4 motywy
+
+[b]Instalacja (Tampermonkey):[/b]
+1) Zainstaluj Tampermonkey.
+2) Otwórz RAW userscript: [url=https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-aegis.user.js]klik[/url]
+3) Odśwież Grepolis. W prawym dolnym rogu zobaczysz złoty przełącznik (FAB).
+
+[b]Motywy:[/b] Classic • Remaster • Pirate • Dark
+[b]AssetMap:[/b] prosta podmiana grafik – wystarczy podmienić pliki w assets/ (logo, statki).
+
+[img]https://raw.githubusercontent.com/KID6767/Aegis/main/assets/ships/ship_green.svg[/img]    [img]https://raw.githubusercontent.com/KID6767/Aegis/main/assets/ships/ship_pirate.svg[/img]
+[/center]
