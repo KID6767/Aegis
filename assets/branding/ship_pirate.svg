@@ -1,5 +1,9 @@
-﻿<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64">
-  <circle cx="32" cy="32" r="30" fill="red"/>
-  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
-        font-size="20" fill="white">P</text>
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+  <rect width="200" height="120" fill="none"/>
+  <path d="M10,90 C50,120 150,120 190,90 L170,90 C150,95 50,95 30,90 Z" fill="#1b1b1b" stroke="#8c6f39" stroke-width="3"/>
+  <polygon points="75,25 115,25 92,70" fill="#2b2b2b" stroke="#8c6f39" stroke-width="2"/>
+  <line x1="92" y1="70" x2="92" y2="20" stroke="#8c6f39" stroke-width="3"/>
+  <circle cx="30" cy="88" r="5" fill="#8c6f39">
+    <animate attributeName="r" values="5;7;5" dur="2.5s" repeatCount="indefinite"/>
+  </circle>
 </svg>
