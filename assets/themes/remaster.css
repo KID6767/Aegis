@@ -1,1 +1,6 @@
-:root{--aeg-green:#0a2e22;--aeg-gold:#d4af37;--aeg-bg:#0e1518;--aeg-fg:#f3f3f3}
+:root{--green:#0a2e22;--green2:#113c2d;--gold:#d4af37;--fg:#f3f3f3;--bg:#0e1518}
+@keyframes aegis-glow{0%,100%{box-shadow:0 0 0 rgba(212,175,55,0)}50%{box-shadow:0 0 12px rgba(212,175,55,.45)}}
+body,.gpwindow_content,.game_inner_box,.ui_box{background:var(--bg)!important;color:var(--fg)!important}
+.game_header,.ui-dialog .ui-dialog-titlebar{background:linear-gradient(180deg,var(--green),var(--green2))!important;color:var(--gold)!important;border-color:rgba(212,175,55,.35)!important}
+.button,.btn,.ui-button{background:#122018!important;color:var(--gold)!important;border:1px solid rgba(212,175,55,.35)!important;box-shadow:0 10px 30px rgba(0,0,0,.55);text-shadow:0 1px 0 rgba(0,0,0,.65)}
+.gp_table th,.gp_table td{border-color:rgba(212,175,55,.35)!important}

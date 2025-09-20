@@ -1,1 +1,5 @@
-:root{--aeg-gold:#d4af37;--aeg-bg:#1a1a1a;--aeg-fg:#f2f2f2}
+:root{--gold:#d4af37;--bg:#1a1a1a;--fg:#f2f2f2}
+body,.gpwindow_content,.game_inner_box,.ui_box{background:#1a1a1a!important;color:#f2f2f2!important}
+.game_header,.ui-dialog .ui-dialog-titlebar{background:#232a36!important;color:#d4af37!important;border-color:#a8832b!important}
+.button,.btn,.ui-button{background:#2a2a2a!important;color:#f2f2f2!important;border:1px solid #555!important;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+a{color:#e3c26b!important}
