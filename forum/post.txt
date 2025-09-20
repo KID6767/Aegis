@@ -1,0 +1,16 @@
+﻿[img]assets/branding/banner.svg[/img]
+
+[b]Aegis â€“ Grepolis Remaster 2025[/b]
+Nowa era Grepolis!
+
+[list]
+[*] Motywy (Classic / Remaster / Pirate / Dark)
+[*] Panel konfiguracji
+[*] AssetMap
+[*] Ekran powitalny
+[/list]
+
+Instalacja:
+1. Zainstaluj Tampermonkey
+2. Kliknij: userscripts/aegis.user.js
+3. OdĹ›wieĹĽ Grepolis
