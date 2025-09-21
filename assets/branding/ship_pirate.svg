@@ -1,1 +1,9 @@
-﻿<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120'><path d='M10,90 C50,120 150,120 190,90 Z' fill='#1b1b1b'/></svg>
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+  <rect width="200" height="120" fill="none"/>
+  <path d="M10,90 C50,120 150,120 190,90 L165,90 C145,95 55,95 35,90 Z" fill="#141414" stroke="#8c6f39" stroke-width="3"/>
+  <polygon points="75,24 115,24 92,70" fill="#2b2b2b" stroke="#8c6f39" stroke-width="2"/>
+  <line x1="92" y1="70" x2="92" y2="20" stroke="#8c6f39" stroke-width="3"/>
+  <circle cx="34" cy="88" r="5" fill="#8c6f39">
+    <animate attributeName="r" values="5;7;5" dur="2.6s" repeatCount="indefinite"/>
+  </circle>
+</svg>

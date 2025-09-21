@@ -1,18 +1,18 @@
-[center][img]https://raw.githubusercontent.com/KID6767/Aegis/main/assets/branding/banner.svg[/img]
+﻿[center][img]https://raw.githubusercontent.com/KID6767/Aegis/main/assets/branding/banner.svg[/img]
 
-[b]Aegis — Grepolis Remaster[/b]
-Butelkowa zieleń + złoto, panel konfiguracji i animowany baner.
+[b]Aegis — Grepolis Remaster 2025[/b]
 
 [list]
 [*] Motywy: Classic / Remaster / Pirate / Dark
-[*] Panel (PP dół) → przycisk Aegis
-[*] Branding z GitHuba (podmień pliki w assets/branding)
+[*] Panel (⚙) — szybka konfiguracja
+[*] AssetMap — branding z GitHuba
+[*] Ekran powitalny + fajerwerki
 [/list]
 
-[b]Instalacja[/b]
-1) Zainstaluj Tampermonkey.
-2) Otwórz: [url]https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-aegis.user.js[/url] → Install.
-3) Odśwież Grepolis.
+[b]Instalacja[/b]:
+1) Zainstaluj Tampermonkey  
+2) Wejdź: [url]https://raw.githubusercontent.com/KID6767/Aegis/main/userscripts/grepolis-aegis.user.js[/url] → Install  
+3) Odśwież Grepolis
 
 [i]MIT[/i]
 [/center]
