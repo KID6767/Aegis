@@ -1,4 +1,4 @@
-﻿#requires -Version 5.1
+#requires -Version 5.1
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
@@ -360,16 +360,14 @@ $LiteB64 = Join-Path $Root 'dist\aegis-lite.b64'
 [Convert]::ToBase64String([IO.File]::ReadAllBytes($LiteZip)) | Set-Content -Encoding ASCII $LiteB64
 Log "base64 ✓ (aegis-full.b64, aegis-lite.b64)"
 
-# ───────────────────────── Final info ──────────────────────
-try {
-  $sha = (Get-FileHash -Algorithm SHA256 $FullZip).Hash
-  Log "SHA-256 (Full): $sha" DarkYellow
-} catch { }
+# ────────────────────────────────────────────────
+# FINISH
+# ────────────────────────────────────────────────
+Write-Host ""
+Log "Aegis $Version — gotowe. Odśwież grę i sprawdź panel ⚙ (Alt+G) / motyw (Alt+T)." ([ConsoleColor]::Green)
 
-Write-Host ""
-Write-Host "Instrukcja offline (PowerShell) — odtworzenie ZIP z base64:" -ForegroundColor Yellow
-Write-Host "cd `"$Root`""
-Write-Host "certutil -decode `".\dist\aegis-full.b64`" `".\dist\Aegis-Full.zip`""
-Write-Host "Expand-Archive -Path `".\dist\Aegis-Full.zip`" -DestinationPath `".`" -Force"
-Write-Host ""
-Log "DONE ✓" Green
+Write-Host "Userscript: userscripts\grepolis-aegis.user.js"
+Write-Host "Assets:     assets\branding\ (banner.svg, ship_green.svg, ship_pirate.svg, spinner.gif, gold_dot.png)"
+Write-Host "Docs:       docs\README.md, docs\CHANGELOG.md"
+Write-Host "Forum:      forum\forum_post.txt"
+Write-Host ("ZIP:        dist\{0}" -f $ZipName)
